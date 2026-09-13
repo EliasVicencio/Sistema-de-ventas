@@ -1,18 +1,18 @@
 {
   "services": {
-    "frontend": {
+    "web": {
       "root": "frontend",
       "framework": "vite",
       "outputDirectory": "dist"
     },
-    "backend": {
+    "api": {
       "root": "backend",
       "framework": "fastapi",
       "entrypoint": "main:app"
     }
   },
   "rewrites": [
-    { "source": "/api/(.*)", "destination": { "service": "backend" } },
-    { "source": "/(.*)", "destination": { "service": "frontend" } }
+    { "source": "/api/(.*)", "destination": { "service": "api" } },
+    { "source": "/(.*)", "destination": { "service": "web" } }
   ]
 }
