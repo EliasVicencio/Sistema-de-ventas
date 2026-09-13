@@ -14,12 +14,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth.router)
-app.include_router(boletas.router)
-app.include_router(reportes.router)
-app.include_router(admin.router)
+app.include_router(auth.router, prefix="/api")
+app.include_router(boletas.router, prefix="/api")
+app.include_router(reportes.router, prefix="/api")
+app.include_router(admin.router, prefix="/api")
 
 
-@app.get("/health")
+@app.get("/api/health")
 def health():
     return {"status": "ok"}
