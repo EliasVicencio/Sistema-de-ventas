@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import api from '../api/cliente'
+import { useToast } from '../context/ToastContext'
 
 export default function SubirBoletas() {
+  const toast = useToast()
   const [archivo, setArchivo] = useState(null)
   const [resultado, setResultado] = useState(null)
   const [cargando, setCargando] = useState(false)
@@ -18,8 +20,20 @@ export default function SubirBoletas() {
     try {
       const { data } = await api.post('/boletas/subir', formData)
       setResultado(data)
+
+      if (data.aceptadas.length > 0) {
+        toast.success(`${data.aceptadas.length} boletas cargadas`)
+      }
+      if (data.rechazadas.length > 0) {
+        toast.warning(`${data.rechazadas.length} filas rechazadas`)
+      }
+      if (data.aceptadas.length === 0 && data.rechazadas.length === 0) {
+        toast.info('El CSV estaba vacío')
+      }
     } catch (err) {
-      setResultado({ error: err.response?.data?.detail || err.message })
+      const mensaje = err.response?.data?.detail || err.message
+      toast.error(mensaje)
+      setResultado({ error: mensaje })
     } finally {
       setCargando(false)
     }
@@ -67,12 +81,6 @@ export default function SubirBoletas() {
           {cargando ? 'Procesando...' : 'Subir y procesar'}
         </button>
       </form>
-
-      {resultado?.error && (
-        <div className="alert alert-error" style={{ marginTop: 20 }}>
-          {resultado.error}
-        </div>
-      )}
 
       {resultado && !resultado.error && (
         <div style={{ marginTop: 24 }}>

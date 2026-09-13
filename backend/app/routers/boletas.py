@@ -47,9 +47,11 @@ async def subir_boletas(
             text("""
                 INSERT INTO boletas
                 (numero_boleta, fecha, cliente, producto, cantidad,
-                 precio_unitario, total, metodo_pago, subido_por)
-                VALUES (:num, :fecha, :cliente, :producto, :cantidad,
-                        :precio, :total, :metodo, :subido_por)
+                 precio_unitario, descuento, total, metodo_pago,
+                 canal_venta, estado, subido_por)
+                VALUES (:numero_boleta, :fecha, :cliente, :producto, :cantidad,
+                        :precio_unitario, :descuento, :total, :metodo_pago,
+                        :canal_venta, :estado, :subido_por)
             """),
             {
                 **boleta,
@@ -79,7 +81,8 @@ def mis_boletas(
     result = db.execute(
         text("""
             SELECT id, numero_boleta, fecha, cliente, producto,
-                   cantidad, precio_unitario, total, metodo_pago, subido_en
+                   cantidad, precio_unitario, descuento, total,
+                   metodo_pago, canal_venta, estado, subido_en
             FROM boletas
             WHERE subido_por = :uid
             ORDER BY subido_en DESC
@@ -98,7 +101,8 @@ def todas_boletas(
     result = db.execute(
         text("""
             SELECT id, numero_boleta, fecha, cliente, producto,
-                   cantidad, precio_unitario, total, metodo_pago,
+                   cantidad, precio_unitario, descuento, total,
+                   metodo_pago, canal_venta, estado,
                    subido_por, subido_en
             FROM boletas
             ORDER BY subido_en DESC

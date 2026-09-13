@@ -16,7 +16,8 @@ export function AuthProvider({ children }) {
       setUsuario({ id: data.user_id, email: data.email })
       setRol(data.role)
       setPermisos(data.permisos || [])
-    } catch {
+    } catch (err) {
+      console.error('Error en /auth/me:', err.response?.status, err.response?.data)
       setUsuario(null)
       setPermisos([])
       setRol(null)
@@ -24,17 +25,19 @@ export function AuthProvider({ children }) {
   }
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    async function init() {
+      const { data: { session } } = await supabase.auth.getSession()
       if (session) {
         await cargarPerfil()
       }
       setCargando(false)
-    })
+    }
+    init()
 
-    const { data: sub } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session) {
+    const { data: sub } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
         await cargarPerfil()
-      } else {
+      } else if (event === 'SIGNED_OUT') {
         setUsuario(null)
         setPermisos([])
         setRol(null)

@@ -1,13 +1,26 @@
 import { useEffect, useState } from 'react'
 import api from '../api/cliente'
+import { useToast } from '../context/ToastContext'
 
 export default function MisCargas() {
+  const toast = useToast()
   const [boletas, setBoletas] = useState([])
   const [cargando, setCargando] = useState(true)
 
   useEffect(() => {
     api.get('/boletas/mias')
-      .then(({ data }) => setBoletas(data))
+      .then(({ data }) => {
+        if (Array.isArray(data)) {
+          setBoletas(data)
+        } else {
+          toast.error('Respuesta inesperada del servidor')
+          setBoletas([])
+        }
+      })
+      .catch((err) => {
+        toast.error(err.response?.data?.detail || 'No se pudieron cargar tus boletas')
+        setBoletas([])
+      })
       .finally(() => setCargando(false))
   }, [])
 
@@ -46,8 +59,11 @@ function TablaBoletas({ boletas }) {
             <th>Cliente</th>
             <th>Producto</th>
             <th>Cant.</th>
+            <th>Descuento</th>
             <th>Total</th>
             <th>Pago</th>
+            <th>Canal</th>
+            <th>Estado</th>
           </tr>
         </thead>
         <tbody>
@@ -58,10 +74,20 @@ function TablaBoletas({ boletas }) {
               <td>{b.cliente}</td>
               <td>{b.producto}</td>
               <td>{b.cantidad}</td>
+              <td>${Number(b.descuento || 0).toFixed(2)}</td>
               <td>${Number(b.total).toFixed(2)}</td>
               <td>
                 <span className={`badge ${b.metodo_pago === 'efectivo' ? 'badge-success' : 'badge-info'}`}>
                   {b.metodo_pago}
+                </span>
+              </td>
+              <td>{b.canal_venta}</td>
+              <td>
+                <span className={`badge ${
+                  b.estado === 'confirmada' ? 'badge-success' :
+                  b.estado === 'pendiente' ? 'badge-warning' : 'badge-danger'
+                }`}>
+                  {b.estado}
                 </span>
               </td>
             </tr>

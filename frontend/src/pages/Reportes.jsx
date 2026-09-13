@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import api from '../api/cliente'
+import { useToast } from '../context/ToastContext'
 
 export default function Reportes() {
+  const toast = useToast()
   const [mes, setMes] = useState(new Date().toISOString().slice(0, 7))
   const [reporte, setReporte] = useState(null)
   const [cargando, setCargando] = useState(false)
@@ -11,6 +13,9 @@ export default function Reportes() {
     try {
       const { data } = await api.get('/reportes/mensual', { params: { mes } })
       setReporte(data)
+      toast.success('Reporte generado')
+    } catch (err) {
+      toast.error(err.response?.data?.detail || 'No se pudo generar el reporte')
     } finally {
       setCargando(false)
     }

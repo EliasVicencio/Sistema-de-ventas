@@ -1,24 +1,25 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 
 export default function Login() {
   const { login } = useAuth()
+  const toast = useToast()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
   const [cargando, setCargando] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
-    setError('')
     setCargando(true)
     try {
       await login(email, password)
+      toast.success('Sesión iniciada correctamente')
       navigate('/')
     } catch (err) {
-      setError(err.message)
+      toast.error(err.message || 'Error al iniciar sesión')
     } finally {
       setCargando(false)
     }
@@ -61,8 +62,6 @@ export default function Login() {
               autoComplete="current-password"
             />
           </div>
-
-          {error && <div className="alert alert-error">{error}</div>}
 
           <button type="submit" className="btn btn-primary btn-full" disabled={cargando}>
             {cargando ? 'Ingresando...' : 'Ingresar'}

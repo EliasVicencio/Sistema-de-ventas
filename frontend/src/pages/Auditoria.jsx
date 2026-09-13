@@ -1,13 +1,25 @@
 import { useEffect, useState } from 'react'
 import api from '../api/cliente'
+import { useToast } from '../context/ToastContext'
 
 export default function Auditoria() {
+  const toast = useToast()
   const [registros, setRegistros] = useState([])
   const [cargando, setCargando] = useState(true)
 
   useEffect(() => {
     api.get('/admin/auditoria')
-      .then(({ data }) => setRegistros(data))
+      .then(({ data }) => {
+        if (Array.isArray(data)) setRegistros(data)
+        else {
+          toast.error('Respuesta inesperada del servidor')
+          setRegistros([])
+        }
+      })
+      .catch((err) => {
+        toast.error(err.response?.data?.detail || 'No se pudo cargar la auditoría')
+        setRegistros([])
+      })
       .finally(() => setCargando(false))
   }, [])
 
