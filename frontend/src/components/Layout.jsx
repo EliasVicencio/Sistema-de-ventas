@@ -118,11 +118,27 @@ export default function Layout() {
         </nav>
 
         <div className="sidebar-user">
-          <div className="sidebar-user-email">{usuario?.email}</div>
-          <div className="sidebar-user-rol">Rol: {rol}</div>
-          <button onClick={handleLogout} className="btn btn-secondary btn-sm btn-full">
-            <IconLogout /> Cerrar sesión
-          </button>
+          <div className="sidebar-user-info">
+            <div className="sidebar-user-avatar">
+              {usuario?.email?.[0]?.toUpperCase() || '?'}
+            </div>
+            <div className="sidebar-user-text">
+              <div className="sidebar-user-email">{usuario?.email}</div>
+              <div className="sidebar-user-rol">{rol}</div>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="sidebar-logout-btn"
+              title="Cerrar sesión"
+              aria-label="Cerrar sesión"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+            </button>
+          </div>
         </div>
       </aside>
 

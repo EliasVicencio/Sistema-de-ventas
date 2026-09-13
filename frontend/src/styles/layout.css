@@ -92,8 +92,40 @@
 
 .sidebar-user {
   margin-top: auto;
-  padding: var(--sp-4) var(--sp-5) 0;
+  padding: var(--sp-4) var(--sp-3) 0;
   border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.sidebar-user-info {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2);
+  border-radius: var(--r-sm);
+  transition: background 0.15s;
+}
+
+.sidebar-user-info:hover {
+  background: var(--bg-sidebar-hover);
+}
+
+.sidebar-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: var(--fs-sm);
+  flex-shrink: 0;
+}
+
+.sidebar-user-text {
+  flex: 1;
+  min-width: 0;
 }
 
 .sidebar-user-email {
@@ -108,8 +140,13 @@
 .sidebar-user-rol {
   font-size: var(--fs-xs);
   color: var(--text-muted);
-  margin-top: 2px;
-  margin-bottom: var(--sp-3);
+  text-transform: capitalize;
+}
+
+.sidebar-user-rol {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  text-transform: capitalize;
 }
 
 /* Main */
