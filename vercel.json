@@ -12,17 +12,7 @@
     }
   },
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": {
-        "service": "backend"
-      }
-    },
-    {
-      "source": "/((?!api).*)",
-      "destination": {
-        "service": "frontend"
-      }
-    }
+    { "source": "/api/(.*)", "destination": { "service": "api" } },
+    { "source": "/((?!api).*)", "destination": { "service": "web", "path": "index.html" } }
   ]
 }
