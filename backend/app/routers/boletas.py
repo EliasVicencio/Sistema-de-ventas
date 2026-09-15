@@ -5,11 +5,25 @@ import csv
 import io
 
 from app.database import get_db
-from app.auth.dependencias import get_usuario_actual, requiere_permiso
+from app.auth.dependencias import requiere_permiso
 from app.servicios.validaciones import validar_boleta
 from app.servicios.auditoria import registrar
 
 router = APIRouter(prefix="/boletas", tags=["boletas"])
+
+
+def decodificar_csv(contenido: bytes) -> str:
+    """Intenta decodificar el CSV en UTF-8 (con o sin BOM) o latin-1 como fallback."""
+    try:
+        return contenido.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        try:
+            return contenido.decode("latin-1")
+        except UnicodeDecodeError:
+            raise HTTPException(
+                status_code=400,
+                detail="El archivo no se pudo leer. Guárdalo como CSV UTF-8 e inténtalo de nuevo.",
+            )
 
 
 @router.post("/subir")
@@ -20,7 +34,11 @@ async def subir_boletas(
 ):
     """Sube un CSV de boletas. Valida cada fila."""
     contenido = await archivo.read()
-    texto = contenido.decode("utf-8")
+
+    if not contenido:
+        raise HTTPException(400, "El archivo está vacío")
+
+    texto = decodificar_csv(contenido)
     lector = csv.DictReader(io.StringIO(texto))
 
     aceptadas = []
@@ -33,7 +51,6 @@ async def subir_boletas(
             rechazadas.append({"fila": fila_num, "motivo": error})
             continue
 
-        # Verificar duplicado
         existe = db.execute(
             text("SELECT 1 FROM boletas WHERE numero_boleta = :num"),
             {"num": boleta["numero_boleta"]},
