@@ -127,3 +127,75 @@ def resumen_dashboard(
         "producto_mas_vendido": dict(top_producto._mapping) if top_producto else None,
         "ultimas_boletas": [dict(r._mapping) for r in ultimas],
     }
+    
+@router.get("/graficos")
+def graficos(
+    usuario: dict = Depends(requiere_permiso("reportes:generar")),
+    db: Session = Depends(get_db),
+):
+    """Datos para gráficos: ventas por mes (6m) y distribución por producto."""
+    from datetime import date
+
+    mes_actual = date.today().strftime("%Y-%m")
+
+    # 1. Generar los últimos 6 meses (incluyendo el actual) en Python
+    hoy = date.today()
+    meses = []
+    for i in range(5, -1, -1):
+        # Restar i meses al mes actual
+        año = hoy.year
+        mes_num = hoy.month - i
+        while mes_num <= 0:
+            mes_num += 12
+            año -= 1
+        meses.append(f"{año:04d}-{mes_num:02d}")
+
+    # 2. Consultar ventas agrupadas por mes
+    resultado = db.execute(
+        text("""
+            SELECT
+                to_char(fecha, 'YYYY-MM') AS mes,
+                COALESCE(SUM(total), 0) AS total
+            FROM boletas
+            WHERE fecha >= date_trunc('month', CURRENT_DATE) - interval '5 months'
+            GROUP BY mes
+        """)
+    ).fetchall()
+
+    # 3. Mapear resultados a un diccionario
+    ventas_dict = {r.mes: float(r.total) for r in resultado}
+
+    # 4. Construir la lista final con todos los meses (0 si no hay datos)
+    ventas_por_mes = [
+        {"mes": m, "total": ventas_dict.get(m, 0.0)}
+        for m in meses
+    ]
+
+    # 5. Distribución por producto (igual que antes)
+    productos = db.execute(
+        text("""
+            SELECT producto, COALESCE(SUM(total), 0) AS total
+            FROM boletas
+            WHERE to_char(fecha, 'YYYY-MM') = :mes
+            GROUP BY producto
+            ORDER BY total DESC
+        """),
+        {"mes": mes_actual},
+    ).fetchall()
+
+    top_productos = productos[:5]
+    otros = productos[5:]
+
+    distribucion = [
+        {"producto": p.producto, "total": float(p.total)}
+        for p in top_productos
+    ]
+    if otros:
+        total_otros = sum(float(p.total) for p in otros)
+        distribucion.append({"producto": "Otros", "total": total_otros})
+
+    return {
+        "mes_actual": mes_actual,
+        "ventas_por_mes": ventas_por_mes,
+        "distribucion_productos": distribucion,
+    }

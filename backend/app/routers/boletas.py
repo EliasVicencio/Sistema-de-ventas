@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 import csv
@@ -91,41 +91,117 @@ async def subir_boletas(
 
 @router.get("/mias")
 def mis_boletas(
+    pagina: int = Query(1, ge=1),
+    por_pagina: int = Query(20, ge=1, le=100),
+    cliente: str | None = Query(None),
     usuario: dict = Depends(requiere_permiso("boletas:ver_propias")),
     db: Session = Depends(get_db),
 ):
-    """Boletas subidas por el usuario actual."""
+    """Boletas del usuario actual con paginación y filtro por cliente."""
+    condiciones = ["subido_por = :uid"]
+    params = {"uid": usuario["sub"]}
+
+    if cliente:
+        condiciones.append("cliente ILIKE :cliente")
+        params["cliente"] = f"%{cliente}%"
+
+    where_sql = "WHERE " + " AND ".join(condiciones)
+
+    total = db.execute(
+        text(f"SELECT COUNT(*) FROM boletas {where_sql}"),
+        params,
+    ).scalar()
+
+    offset = (pagina - 1) * por_pagina
+
     result = db.execute(
-        text("""
+        text(f"""
             SELECT id, numero_boleta, fecha, cliente, producto,
                    cantidad, precio_unitario, descuento, total,
                    metodo_pago, canal_venta, estado, subido_en
             FROM boletas
-            WHERE subido_por = :uid
+            {where_sql}
             ORDER BY subido_en DESC
+            LIMIT :limite OFFSET :offset
         """),
-        {"uid": usuario["sub"]},
+        {**params, "limite": por_pagina, "offset": offset},
     )
-    return [dict(r._mapping) for r in result]
+
+    items = [dict(r._mapping) for r in result]
+    total_paginas = (total + por_pagina - 1) // por_pagina if total > 0 else 1
+
+    return {
+        "items": items,
+        "total": total,
+        "pagina": pagina,
+        "por_pagina": por_pagina,
+        "total_paginas": total_paginas,
+    }
 
 
 @router.get("")
 def todas_boletas(
+    pagina: int = Query(1, ge=1),
+    por_pagina: int = Query(20, ge=1, le=100),
+    cliente: str | None = Query(None),
+    desde: str | None = Query(None, description="YYYY-MM-DD"),
+    hasta: str | None = Query(None, description="YYYY-MM-DD"),
     usuario: dict = Depends(requiere_permiso("boletas:ver_todas")),
     db: Session = Depends(get_db),
 ):
-    """Todas las boletas (solo supervisor/admin)."""
+    """Todas las boletas con paginación y filtros opcionales."""
+    # Construir WHERE dinámico
+    condiciones = []
+    params = {}
+
+    if cliente:
+        condiciones.append("cliente ILIKE :cliente")
+        params["cliente"] = f"%{cliente}%"
+
+    if desde:
+        condiciones.append("fecha >= CAST(:desde AS date)")
+        params["desde"] = desde
+
+    if hasta:
+        condiciones.append("fecha < CAST(:hasta AS date) + interval '1 day'")
+        params["hasta"] = hasta
+
+    where_sql = f"WHERE {' AND '.join(condiciones)}" if condiciones else ""
+
+    # Total de registros (para calcular total de páginas)
+    total = db.execute(
+        text(f"SELECT COUNT(*) FROM boletas {where_sql}"),
+        params,
+    ).scalar()
+
+    # Offset
+    offset = (pagina - 1) * por_pagina
+
+    # Query paginada
     result = db.execute(
-        text("""
+        text(f"""
             SELECT id, numero_boleta, fecha, cliente, producto,
                    cantidad, precio_unitario, descuento, total,
                    metodo_pago, canal_venta, estado,
                    subido_por, subido_en
             FROM boletas
+            {where_sql}
             ORDER BY subido_en DESC
-        """)
+            LIMIT :limite OFFSET :offset
+        """),
+        {**params, "limite": por_pagina, "offset": offset},
     )
-    return [dict(r._mapping) for r in result]
+
+    items = [dict(r._mapping) for r in result]
+    total_paginas = (total + por_pagina - 1) // por_pagina if total > 0 else 1
+
+    return {
+        "items": items,
+        "total": total,
+        "pagina": pagina,
+        "por_pagina": por_pagina,
+        "total_paginas": total_paginas,
+    }
 
 
 @router.delete("/{boleta_id}")
