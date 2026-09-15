@@ -72,7 +72,19 @@
 }
 
 /* Subir boletas */
+.upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  max-width: 640px;
+}
+
 .upload-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
   border: 2px dashed var(--border-strong);
   border-radius: var(--r-md);
   padding: var(--sp-7) var(--sp-5);
@@ -80,31 +92,35 @@
   background: var(--bg-card);
   transition: border-color 0.15s, background 0.15s;
   cursor: pointer;
-  margin-bottom: var(--sp-4);
+  min-height: 220px;
 }
 
 .upload-zone:hover {
   border-color: var(--primary);
-  background: #f0f7ff;
+  background: rgba(37, 99, 235, 0.05);
 }
 
 .upload-zone.has-file {
   border-color: var(--success);
-  background: #f0fdf4;
+  background: rgba(16, 185, 129, 0.05);
   border-style: solid;
 }
 
 .upload-zone-icon {
   width: 48px;
   height: 48px;
-  margin: 0 auto var(--sp-3);
   color: var(--text-muted);
+  margin-bottom: var(--sp-2);
+}
+
+.upload-zone.has-file .upload-zone-icon {
+  color: var(--success);
 }
 
 .upload-zone-title {
   font-size: var(--fs-md);
   font-weight: 600;
-  margin-bottom: var(--sp-1);
+  color: var(--text-primary);
 }
 
 .upload-zone-hint {
@@ -135,4 +151,86 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   vertical-align: middle;
+}
+
+/* Dashboard */
+.dashboard-hero {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  background: linear-gradient(135deg, var(--primary) 0%, #1e40af 100%);
+  color: white;
+  padding: var(--sp-5) var(--sp-6);
+  border-radius: var(--r-md);
+  margin-bottom: var(--sp-5);
+  box-shadow: var(--shadow-md);
+}
+
+.dashboard-hero-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: var(--fs-xl);
+  flex-shrink: 0;
+}
+
+.dashboard-hero-title {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 2px;
+}
+
+.dashboard-hero-subtitle {
+  font-size: var(--fs-sm);
+  color: rgba(255, 255, 255, 0.85);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.dashboard-hero-rol {
+  text-transform: capitalize;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: var(--fs-xs);
+}
+
+.dashboard-hero-sep {
+  opacity: 0.5;
+}
+
+/* Grid 2 columnas del dashboard */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: var(--sp-4);
+  margin-top: var(--sp-4);
+}
+
+@media (max-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Permisos minimizados */
+.permisos-mini {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.permisos-mini .badge {
+  font-size: 10px;
+  padding: 2px 8px;
 }

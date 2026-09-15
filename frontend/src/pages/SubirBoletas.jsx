@@ -39,6 +39,11 @@ export default function SubirBoletas() {
     }
   }
 
+  function handleArchivo(e) {
+    const file = e.target.files[0]
+    if (file) setArchivo(file)
+  }
+
   return (
     <>
       <div className="page-header">
@@ -48,29 +53,39 @@ export default function SubirBoletas() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="upload-form">
         <label
-          htmlFor="file"
+          htmlFor="file-input"
           className={`upload-zone ${archivo ? 'has-file' : ''}`}
         >
-          <svg className="upload-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <input
+            id="file-input"
+            type="file"
+            accept=".csv"
+            onChange={handleArchivo}
+            hidden
+          />
+
+          <svg
+            className="upload-zone-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
             <polyline points="17 8 12 3 7 8" />
             <line x1="12" y1="3" x2="12" y2="15" />
           </svg>
+
           <div className="upload-zone-title">
             {archivo ? archivo.name : 'Selecciona un archivo CSV'}
           </div>
           <div className="upload-zone-hint">
             {archivo ? 'Listo para subir' : 'Haz clic aquí o arrastra el archivo'}
           </div>
-          <input
-            id="file"
-            type="file"
-            accept=".csv"
-            hidden
-            onChange={(e) => setArchivo(e.target.files[0])}
-          />
         </label>
 
         <button

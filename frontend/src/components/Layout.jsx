@@ -1,7 +1,9 @@
 import { Link, Outlet, NavLink, useNavigate } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { usePermiso } from '../hooks/usePermiso'
-import { useState } from 'react'
+import { useTheme } from '../context/ThemeContext'
+import Logo from './Logo'
 
 const IconDashboard = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -53,21 +55,59 @@ const IconShield = () => (
   </svg>
 )
 
-const IconLogout = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-    <polyline points="16 17 21 12 16 7" />
-    <line x1="21" y1="12" x2="9" y2="12" />
+const IconSun = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+    <circle cx="12" cy="12" r="5" />
+    <line x1="12" y1="1" x2="12" y2="3" />
+    <line x1="12" y1="21" x2="12" y2="23" />
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+    <line x1="1" y1="12" x2="3" y2="12" />
+    <line x1="21" y1="12" x2="23" y2="12" />
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+  </svg>
+)
+
+const IconMoon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
   </svg>
 )
 
 export default function Layout() {
   const { usuario, rol, logout } = useAuth()
+  const { tema, toggleTema } = useTheme()
   const navigate = useNavigate()
+
+  const [menuAbierto, setMenuAbierto] = useState(false)
+  const menuRef = useRef(null)
 
   const puedeVerTodas = usePermiso('boletas:ver_todas')
   const puedeReportes = usePermiso('reportes:generar')
   const puedeAuditoria = usePermiso('auditoria:ver')
+
+  useEffect(() => {
+    if (!menuAbierto) return
+
+    function handleClickFuera(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuAbierto(false)
+      }
+    }
+
+    function handleEscape(e) {
+      if (e.key === 'Escape') setMenuAbierto(false)
+    }
+
+    document.addEventListener('mousedown', handleClickFuera)
+    document.addEventListener('keydown', handleEscape)
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickFuera)
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }, [menuAbierto])
 
   async function handleLogout() {
     await logout()
@@ -81,8 +121,8 @@ export default function Layout() {
     <div className="app-shell">
       <aside className="sidebar">
         <div className="sidebar-brand">
-          <div className="sidebar-brand-icon">V</div>
-          <div className="sidebar-brand-name">Sistema Ventas</div>
+          <Logo size={32} />
+          <div className="sidebar-brand-name">Sistema de Ventas</div>
         </div>
 
         <nav className="sidebar-nav">
@@ -117,27 +157,76 @@ export default function Layout() {
           )}
         </nav>
 
-        <div className="sidebar-user">
-          <div className="sidebar-user-info">
-            <div className="sidebar-user-avatar">
-              {usuario?.email?.[0]?.toUpperCase() || '?'}
-            </div>
-            <div className="sidebar-user-text">
-              <div className="sidebar-user-email">{usuario?.email}</div>
-              <div className="sidebar-user-rol">{rol}</div>
-            </div>
+        <div className="sidebar-user" ref={menuRef}>
+          <button
+            onClick={toggleTema}
+            className="sidebar-theme-toggle"
+            title={tema === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+            aria-label="Cambiar tema"
+          >
+            {tema === 'dark' ? (
+              <>
+                <IconSun />
+                <span>Modo claro</span>
+              </>
+            ) : (
+              <>
+                <IconMoon />
+                <span>Modo oscuro</span>
+              </>
+            )}
+          </button>
+
+          <div className="sidebar-user-wrapper">
             <button
-              onClick={handleLogout}
-              className="sidebar-logout-btn"
-              title="Cerrar sesión"
-              aria-label="Cerrar sesión"
+              className="sidebar-user-info"
+              onClick={() => setMenuAbierto((v) => !v)}
+              aria-expanded={menuAbierto}
+              aria-haspopup="menu"
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                <polyline points="16 17 21 12 16 7" />
-                <line x1="21" y1="12" x2="9" y2="12" />
+              <div className="sidebar-user-avatar">
+                {usuario?.email?.[0]?.toUpperCase() || '?'}
+              </div>
+              <div className="sidebar-user-text">
+                <div className="sidebar-user-email">{usuario?.email}</div>
+                <div className="sidebar-user-rol">{rol}</div>
+              </div>
+              <svg
+                className={`sidebar-user-chevron ${menuAbierto ? 'open' : ''}`}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                width="16"
+                height="16"
+              >
+                <polyline points="6 15 12 9 18 15" />
               </svg>
             </button>
+
+            {menuAbierto && (
+              <div className="sidebar-user-menu" role="menu">
+                <div className="sidebar-user-menu-header">
+                  <div className="sidebar-user-menu-email">{usuario?.email}</div>
+                  <div className="sidebar-user-menu-rol">{rol}</div>
+                </div>
+                <div className="sidebar-user-menu-divider" />
+                <button
+                  className="sidebar-user-menu-item danger"
+                  onClick={handleLogout}
+                  role="menuitem"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                  Cerrar sesión
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </aside>

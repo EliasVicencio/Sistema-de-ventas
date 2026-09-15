@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
+import Logo from '../components/Logo'
 
 export default function Login() {
   const { login } = useAuth()
@@ -29,7 +30,7 @@ export default function Login() {
     <div className="login-page">
       <div className="login-card">
         <div className="login-brand">
-          <div className="login-brand-icon">V</div>
+          <Logo size={52} />
         </div>
         <h1 className="login-title">Sistema de Ventas</h1>
         <p className="login-subtitle">Ingresa con tu cuenta para continuar</p>
