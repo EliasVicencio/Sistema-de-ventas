@@ -16,8 +16,8 @@ export default function Reportes() {
   const [reporte, setReporte] = useState(null)
   const [graficos, setGraficos] = useState(null)
   const [cargando, setCargando] = useState(false)
+  const [exportando, setExportando] = useState(false)
 
-  // Colores que dependen del tema
   const colorTexto = tema === 'dark' ? '#e2e8f0' : '#0f172a'
   const colorGrilla = tema === 'dark' ? '#1e293b' : '#e2e8f0'
   const colorTooltipBg = tema === 'dark' ? '#111a2e' : '#ffffff'
@@ -45,6 +45,34 @@ export default function Reportes() {
     }
   }
 
+  async function exportarExcel() {
+    setExportando(true)
+    try {
+      const response = await api.get('/reportes/mensual/excel', {
+        params: { mes },
+        responseType: 'blob',
+      })
+
+      const blob = new Blob([response.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `reporte_ventas_${mes}.xlsx`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      window.URL.revokeObjectURL(url)
+
+      toast.success('Reporte Excel descargado')
+    } catch (err) {
+      toast.error(err.response?.data?.detail || 'No se pudo exportar el reporte')
+    } finally {
+      setExportando(false)
+    }
+  }
+
   const tooltipStyle = {
     backgroundColor: colorTooltipBg,
     border: `1px solid ${colorTooltipBorder}`,
@@ -52,7 +80,6 @@ export default function Reportes() {
     color: colorTexto,
   }
 
-  // Formatear mes "2026-09" → "Sep 26"
   function formatearMes(m) {
     if (!m) return ''
     const [año, mes] = m.split('-')
@@ -73,7 +100,6 @@ export default function Reportes() {
       {/* ============ GRÁFICOS ============ */}
       {graficos && (
         <div className="graficos-grid">
-          {/* TORTA: distribución por producto del mes actual */}
           <div className="card">
             <div className="card-title">
               Distribución por producto
@@ -100,9 +126,7 @@ export default function Reportes() {
                   </Pie>
                   <Tooltip
                     contentStyle={tooltipStyle}
-                    cursor={{ fill: 'rgba(37, 99, 235, 0.1)' }}
-                    formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Vendido']}
-                    labelFormatter={(label) => label}
+                    formatter={(value) => `$${Number(value).toFixed(2)}`}
                   />
                   <Legend
                     wrapperStyle={{ color: colorTexto, fontSize: 13 }}
@@ -113,7 +137,6 @@ export default function Reportes() {
             )}
           </div>
 
-          {/* BARRAS: ventas por mes (últimos 6 meses) */}
           <div className="card">
             <div className="card-title">
               Ventas por mes
@@ -148,7 +171,7 @@ export default function Reportes() {
                     cursor={{ fill: 'rgba(37, 99, 235, 0.1)' }}
                     formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Vendido']}
                   />
-                  <Bar dataKey="total" fill="#2563eb" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="total" fill="#2563eb" radius={[6, 6, 0, 0]} maxBarSize={60} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -170,6 +193,14 @@ export default function Reportes() {
           />
           <button className="btn btn-primary" onClick={generar} disabled={cargando}>
             {cargando ? 'Generando...' : 'Generar reporte'}
+          </button>
+          <button className="btn btn-secondary" onClick={exportarExcel} disabled={exportando}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            {exportando ? 'Exportando...' : 'Exportar Excel'}
           </button>
         </div>
 
