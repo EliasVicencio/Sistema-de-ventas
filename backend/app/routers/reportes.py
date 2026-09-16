@@ -5,6 +5,8 @@ from sqlalchemy import text
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
+from openpyxl.chart import PieChart, BarChart, Reference
+from openpyxl.chart.label import DataLabelList
 import io
 
 from app.database import get_db
@@ -144,7 +146,6 @@ def graficos(
 
     mes_actual = date.today().strftime("%Y-%m")
 
-    # 1. Generar los últimos 6 meses (incluyendo el actual) en Python
     hoy = date.today()
     meses = []
     for i in range(5, -1, -1):
@@ -155,7 +156,6 @@ def graficos(
             año -= 1
         meses.append(f"{año:04d}-{mes_num:02d}")
 
-    # 2. Consultar ventas agrupadas por mes
     resultado = db.execute(
         text("""
             SELECT
@@ -167,16 +167,13 @@ def graficos(
         """)
     ).fetchall()
 
-    # 3. Mapear resultados a un diccionario
     ventas_dict = {r.mes: float(r.total) for r in resultado}
 
-    # 4. Construir la lista final con todos los meses (0 si no hay datos)
     ventas_por_mes = [
         {"mes": m, "total": ventas_dict.get(m, 0.0)}
         for m in meses
     ]
 
-    # 5. Distribución por producto (mes actual)
     productos = db.execute(
         text("""
             SELECT producto, COALESCE(SUM(total), 0) AS total
@@ -213,10 +210,7 @@ def reporte_mensual_excel(
     db: Session = Depends(get_db),
 ):
     """Genera un Excel con el reporte mensual y gráficos nativos."""
-    from openpyxl.chart import PieChart, BarChart, Reference
-    from openpyxl.chart.label import DataLabelList
-
-    # --- 1. Datos ---
+    # --- 1. Datos: resumen general ---
     resumen = db.execute(
         text("""
             SELECT
@@ -232,9 +226,10 @@ def reporte_mensual_excel(
         {"mes": mes},
     ).fetchone()
 
+    # --- 2. Datos: boletas del mes (con tipo_documento) ---
     boletas = db.execute(
         text("""
-            SELECT numero_boleta, fecha, cliente, producto, cantidad,
+            SELECT numero_boleta, tipo_documento, fecha, cliente, producto, cantidad,
                    precio_unitario, descuento, total, metodo_pago,
                    canal_venta, estado
             FROM boletas
@@ -244,6 +239,7 @@ def reporte_mensual_excel(
         {"mes": mes},
     ).fetchall()
 
+    # --- 3. Datos: por día ---
     por_dia = db.execute(
         text("""
             SELECT fecha, COUNT(*) AS cantidad, SUM(total) AS total
@@ -255,6 +251,7 @@ def reporte_mensual_excel(
         {"mes": mes},
     ).fetchall()
 
+    # --- 4. Datos: por producto ---
     por_producto = db.execute(
         text("""
             SELECT producto,
@@ -269,7 +266,34 @@ def reporte_mensual_excel(
         {"mes": mes},
     ).fetchall()
 
-    # --- 2. Construir el Excel ---
+    # --- 5. Datos: por método de pago ---
+    por_metodo = db.execute(
+        text("""
+            SELECT metodo_pago,
+                   COUNT(*) AS boletas,
+                   SUM(total) AS total
+            FROM boletas
+            WHERE to_char(fecha, 'YYYY-MM') = :mes
+            GROUP BY metodo_pago
+            ORDER BY total DESC
+        """),
+        {"mes": mes},
+    ).fetchall()
+
+    # --- 6. Datos: por tipo de documento ---
+    por_tipo = db.execute(
+        text("""
+            SELECT tipo_documento,
+                   COUNT(*) AS cantidad,
+                   SUM(total) AS total
+            FROM boletas
+            WHERE to_char(fecha, 'YYYY-MM') = :mes
+            GROUP BY tipo_documento
+        """),
+        {"mes": mes},
+    ).fetchall()
+
+    # --- 7. Construir Excel ---
     wb = Workbook()
 
     # Estilos
@@ -287,6 +311,14 @@ def reporte_mensual_excel(
     )
     centrado = Alignment(horizontal="center", vertical="center")
     derecha = Alignment(horizontal="right", vertical="center")
+
+    nombres_metodo = {
+        "efectivo": "Efectivo",
+        "debito": "Débito",
+        "credito": "Crédito",
+        "transferencia": "Transferencia",
+        "vale_vista": "Vale vista",
+    }
 
     # ============ HOJA 1: RESUMEN ============
     ws = wb.active
@@ -336,7 +368,7 @@ def reporte_mensual_excel(
     # ============ HOJA 2: VENTAS ============
     ws2 = wb.create_sheet("Ventas")
     headers = [
-        "N° boleta", "Fecha", "Cliente", "Producto", "Cantidad",
+        "N° documento", "Tipo", "Fecha", "Cliente", "Producto", "Cantidad",
         "Precio unitario", "Descuento", "Total", "Método pago",
         "Canal", "Estado",
     ]
@@ -351,6 +383,7 @@ def reporte_mensual_excel(
     for i, b in enumerate(boletas, start=2):
         fila_datos = [
             b.numero_boleta,
+            "Factura" if b.tipo_documento == "factura" else "Boleta",
             str(b.fecha),
             b.cliente,
             b.producto,
@@ -358,18 +391,18 @@ def reporte_mensual_excel(
             float(b.precio_unitario),
             float(b.descuento),
             float(b.total),
-            b.metodo_pago,
+            nombres_metodo.get(b.metodo_pago, b.metodo_pago),
             b.canal_venta,
             b.estado,
         ]
         for col, valor in enumerate(fila_datos, start=1):
             c = ws2.cell(row=i, column=col, value=valor)
             c.border = borde_fino
-            if col in (6, 7, 8):
+            if col in (7, 8, 9):
                 c.number_format = '"$"#,##0.00'
                 c.alignment = derecha
 
-    anchos = [14, 12, 22, 22, 10, 14, 12, 12, 14, 12, 12]
+    anchos = [14, 10, 12, 22, 22, 10, 14, 12, 12, 14, 12, 12]
     for i, ancho in enumerate(anchos, start=1):
         ws2.column_dimensions[get_column_letter(i)].width = ancho
 
@@ -377,8 +410,8 @@ def reporte_mensual_excel(
     ws2.cell(row=fila_total, column=1, value="TOTAL").font = subtotal_font
     ws2.cell(row=fila_total, column=1).fill = subtotal_fill
     celda_sum = ws2.cell(
-        row=fila_total, column=8,
-        value=f"=SUM(H2:H{fila_total - 1})"
+        row=fila_total, column=9,
+        value=f"=SUM(I2:I{fila_total - 1})"
     )
     celda_sum.font = subtotal_font
     celda_sum.fill = subtotal_fill
@@ -442,34 +475,77 @@ def reporte_mensual_excel(
     ws4.column_dimensions["C"].width = 12
     ws4.column_dimensions["D"].width = 16
 
-    # ============ GRÁFICOS ============
-    # Los gráficos se insertan en la hoja Resumen, apuntando a datos
-    # que están en "Por producto" y "Por día".
+    # ============ HOJA 5: POR MÉTODO ============
+    ws5 = wb.create_sheet("Por método")
+    headers5 = ["Método de pago", "Boletas", "Total"]
+    for col, header in enumerate(headers5, start=1):
+        c = ws5.cell(row=1, column=col, value=header)
+        c.font = header_font
+        c.fill = header_fill
+        c.alignment = centrado
+        c.border = borde_fino
 
-    #    # --- Gráfico 1: Torta (distribución por producto) ---
+    for i, m in enumerate(por_metodo, start=2):
+        nombre = nombres_metodo.get(m.metodo_pago, m.metodo_pago)
+        ws5.cell(row=i, column=1, value=nombre).border = borde_fino
+        ws5.cell(row=i, column=2, value=m.boletas).border = borde_fino
+        c = ws5.cell(row=i, column=3, value=float(m.total))
+        c.border = borde_fino
+        c.number_format = '"$"#,##0.00'
+        c.alignment = derecha
+
+    fila_total5 = len(por_metodo) + 2
+    ws5.cell(row=fila_total5, column=1, value="TOTAL").font = subtotal_font
+    ws5.cell(row=fila_total5, column=1).fill = subtotal_fill
+    ws5.cell(row=fila_total5, column=2, value=f"=SUM(B2:B{fila_total5 - 1})").font = subtotal_font
+    ws5.cell(row=fila_total5, column=2).fill = subtotal_fill
+    c = ws5.cell(row=fila_total5, column=3, value=f"=SUM(C2:C{fila_total5 - 1})")
+    c.font = subtotal_font
+    c.fill = subtotal_fill
+    c.number_format = '"$"#,##0.00'
+    c.alignment = derecha
+
+    ws5.column_dimensions["A"].width = 20
+    ws5.column_dimensions["B"].width = 12
+    ws5.column_dimensions["C"].width = 18
+
+    # ============ HOJA 6: POR TIPO ============
+    ws6 = wb.create_sheet("Por tipo")
+    headers6 = ["Tipo", "Cantidad", "Total"]
+    for col, header in enumerate(headers6, start=1):
+        c = ws6.cell(row=1, column=col, value=header)
+        c.font = header_font
+        c.fill = header_fill
+        c.alignment = centrado
+        c.border = borde_fino
+
+    for i, t in enumerate(por_tipo, start=2):
+        nombre = "Factura" if t.tipo_documento == "factura" else "Boleta"
+        ws6.cell(row=i, column=1, value=nombre).border = borde_fino
+        ws6.cell(row=i, column=2, value=t.cantidad).border = borde_fino
+        c = ws6.cell(row=i, column=3, value=float(t.total))
+        c.border = borde_fino
+        c.number_format = '"$"#,##0.00'
+        c.alignment = derecha
+
+    ws6.column_dimensions["A"].width = 16
+    ws6.column_dimensions["B"].width = 12
+    ws6.column_dimensions["C"].width = 18
+
+    # ============ GRÁFICOS ============
+    # --- Torta (distribución por producto) ---
     if por_producto:
         pie = PieChart()
         pie.title = "Distribución por producto"
         pie.height = 9
         pie.width = 14
 
-        datos = Reference(
-            ws4,
-            min_col=4,
-            min_row=1,
-            max_row=len(por_producto) + 1,
-        )
-        categorias = Reference(
-            ws4,
-            min_col=1,
-            min_row=2,
-            max_row=len(por_producto) + 1,
-        )
+        datos = Reference(ws4, min_col=4, min_row=1, max_row=len(por_producto) + 1)
+        categorias = Reference(ws4, min_col=1, min_row=2, max_row=len(por_producto) + 1)
 
         pie.add_data(datos, titles_from_data=True)
         pie.set_categories(categorias)
 
-        # Solo mostrar porcentaje (más limpio)
         pie.dataLabels = DataLabelList()
         pie.dataLabels.showPercent = True
         pie.dataLabels.showVal = False
@@ -479,7 +555,7 @@ def reporte_mensual_excel(
 
         ws.add_chart(pie, "D4")
 
-    # --- Gráfico 2: Barras (ventas por día) ---
+    # --- Barras (ventas por día) ---
     if por_dia:
         bar = BarChart()
         bar.type = "col"
@@ -489,26 +565,15 @@ def reporte_mensual_excel(
         bar.y_axis.title = "Total ($)"
         bar.x_axis.title = "Fecha"
 
-        datos = Reference(
-            ws3,
-            min_col=3,        # columna Total
-            min_row=1,
-            max_row=len(por_dia) + 1,
-        )
-        categorias = Reference(
-            ws3,
-            min_col=1,        # columna Fecha
-            min_row=2,
-            max_row=len(por_dia) + 1,
-        )
+        datos = Reference(ws3, min_col=3, min_row=1, max_row=len(por_dia) + 1)
+        categorias = Reference(ws3, min_col=1, min_row=2, max_row=len(por_dia) + 1)
 
         bar.add_data(datos, titles_from_data=True)
         bar.set_categories(categorias)
 
-        # Insertar debajo del gráfico de torta
-        ws.add_chart(bar, "D24")
+        ws.add_chart(bar, "N4")
 
-        # --- Gráfico 3: Barras horizontales (ranking de productos) ---
+    # --- Barras horizontales (ranking de productos) ---
     if por_producto:
         bar2 = BarChart()
         bar2.type = "bar"
@@ -517,7 +582,7 @@ def reporte_mensual_excel(
         bar2.width = 14
         bar2.y_axis.title = "Producto"
         bar2.x_axis.title = "Total ($)"
-        bar2.x_axis.scaling.min = 0   # ← forzar mínimo 0
+        bar2.x_axis.scaling.min = 0
         bar2.x_axis.numFmt = '"$"#,##0'
 
         datos = Reference(ws4, min_col=4, min_row=1, max_row=len(por_producto) + 1)

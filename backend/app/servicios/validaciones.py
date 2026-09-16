@@ -1,6 +1,7 @@
-METODOS_PAGO_VALIDOS = {"efectivo", "tarjeta", "transferencia"}
+METODOS_PAGO_VALIDOS = {"efectivo", "debito", "credito", "transferencia", "vale_vista"}
 CANALES_VALIDOS = {"fisico", "ecommerce", "redes", "otro"}
 ESTADOS_VALIDOS = {"confirmada", "pendiente", "devuelta"}
+TIPOS_DOCUMENTO_VALIDOS = {"boleta", "factura"}
 
 
 def validar_boleta(fila: dict) -> tuple[dict | None, str | None]:
@@ -12,6 +13,7 @@ def validar_boleta(fila: dict) -> tuple[dict | None, str | None]:
     metodo = str(fila.get("metodo_pago", "")).strip().lower()
     canal = str(fila.get("canal_venta", "fisico")).strip().lower() or "fisico"
     estado = str(fila.get("estado", "confirmada")).strip().lower() or "confirmada"
+    tipo = str(fila.get("tipo_documento", "boleta")).strip().lower() or "boleta"
 
     if not numero:
         return None, "número de boleta vacío"
@@ -27,6 +29,8 @@ def validar_boleta(fila: dict) -> tuple[dict | None, str | None]:
         return None, f"canal de venta inválido: '{canal}'"
     if estado not in ESTADOS_VALIDOS:
         return None, f"estado inválido: '{estado}'"
+    if tipo not in TIPOS_DOCUMENTO_VALIDOS:
+        return None, f"tipo de documento inválido: '{tipo}'"
 
     try:
         cantidad = int(fila.get("cantidad"))
@@ -43,7 +47,6 @@ def validar_boleta(fila: dict) -> tuple[dict | None, str | None]:
     if precio <= 0:
         return None, "precio unitario debe ser mayor a 0"
 
-    # Descuento opcional, default 0
     descuento_raw = fila.get("descuento", 0) or 0
     try:
         descuento = float(descuento_raw)
@@ -79,4 +82,5 @@ def validar_boleta(fila: dict) -> tuple[dict | None, str | None]:
         "metodo_pago": metodo,
         "canal_venta": canal,
         "estado": estado,
+        "tipo_documento": tipo,
     }, None

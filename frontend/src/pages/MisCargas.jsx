@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react'
 import api from '../api/cliente'
 import { useToast } from '../context/ToastContext'
+import {
+  claseMetodoPago, formatearMetodo,
+  claseTipoDocumento, formatearTipo,
+  claseEstado,
+} from '../utils/badges'
 
 export default function MisCargas() {
   const toast = useToast()
@@ -120,12 +125,14 @@ export default function MisCargas() {
             <table className="tabla">
               <thead>
                 <tr>
-                  <th>N° boleta</th>
+                  <th>N°</th>
+                  <th>Tipo</th>
                   <th>Fecha</th>
                   <th>Cliente</th>
                   <th>Producto</th>
                   <th>Cant.</th>
                   <th>Total</th>
+                  <th>Método</th>
                   <th>Estado</th>
                 </tr>
               </thead>
@@ -133,16 +140,23 @@ export default function MisCargas() {
                 {boletas.map((b) => (
                   <tr key={b.id}>
                     <td><strong>{b.numero_boleta}</strong></td>
+                    <td>
+                      <span className={`badge ${claseTipoDocumento(b.tipo_documento)}`}>
+                        {formatearTipo(b.tipo_documento)}
+                      </span>
+                    </td>
                     <td>{b.fecha}</td>
                     <td>{b.cliente}</td>
                     <td>{b.producto}</td>
                     <td>{b.cantidad}</td>
                     <td>${Number(b.total).toFixed(2)}</td>
                     <td>
-                      <span className={`badge ${
-                        b.estado === 'confirmada' ? 'badge-success' :
-                        b.estado === 'pendiente' ? 'badge-warning' : 'badge-danger'
-                      }`}>
+                      <span className={`badge ${claseMetodoPago(b.metodo_pago)}`}>
+                        {formatearMetodo(b.metodo_pago)}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`badge ${claseEstado(b.estado)}`}>
                         {b.estado}
                       </span>
                     </td>

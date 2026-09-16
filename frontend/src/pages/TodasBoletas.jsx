@@ -1,43 +1,39 @@
 import { useEffect, useState } from 'react'
 import api from '../api/cliente'
 import { useToast } from '../context/ToastContext'
+import {
+  claseMetodoPago, formatearMetodo,
+  claseTipoDocumento, formatearTipo,
+  claseEstado,
+} from '../utils/badges'
 
 export default function TodasBoletas() {
   const toast = useToast()
 
-  // Datos
   const [boletas, setBoletas] = useState([])
-  const [meta, setMeta] = useState({
-    total: 0,
-    pagina: 1,
-    por_pagina: 20,
-    total_paginas: 1,
-  })
-
-  // UI
+  const [meta, setMeta] = useState({ total: 0, pagina: 1, por_pagina: 20, total_paginas: 1 })
   const [cargando, setCargando] = useState(true)
 
-  // Filtros del formulario
   const [formCliente, setFormCliente] = useState('')
   const [formDesde, setFormDesde] = useState('')
   const [formHasta, setFormHasta] = useState('')
+  const [formTipo, setFormTipo] = useState('')
+  const [formMetodo, setFormMetodo] = useState('')
 
-  // Filtros aplicados (los que se envían al backend)
-  const [filtros, setFiltros] = useState({ cliente: '', desde: '', hasta: '' })
-
-  // Página actual
+  const [filtros, setFiltros] = useState({
+    cliente: '', desde: '', hasta: '', tipo: '', metodo: ''
+  })
   const [pagina, setPagina] = useState(1)
 
   async function cargar(paginaActual = pagina, filtrosActivos = filtros) {
     setCargando(true)
     try {
-      const params = {
-        pagina: paginaActual,
-        por_pagina: 20,
-      }
+      const params = { pagina: paginaActual, por_pagina: 20 }
       if (filtrosActivos.cliente) params.cliente = filtrosActivos.cliente
       if (filtrosActivos.desde) params.desde = filtrosActivos.desde
       if (filtrosActivos.hasta) params.hasta = filtrosActivos.hasta
+      if (filtrosActivos.tipo) params.tipo_documento = filtrosActivos.tipo
+      if (filtrosActivos.metodo) params.metodo_pago = filtrosActivos.metodo
 
       const { data } = await api.get('/boletas', { params })
 
@@ -62,7 +58,7 @@ export default function TodasBoletas() {
   }
 
   useEffect(() => {
-    cargar(1, { cliente: '', desde: '', hasta: '' })
+    cargar(1, { cliente: '', desde: '', hasta: '', tipo: '', metodo: '' })
   }, [])
 
   function aplicarFiltros(e) {
@@ -71,7 +67,13 @@ export default function TodasBoletas() {
       toast.error('La fecha "desde" no puede ser mayor que "hasta"')
       return
     }
-    const nuevos = { cliente: formCliente, desde: formDesde, hasta: formHasta }
+    const nuevos = {
+      cliente: formCliente,
+      desde: formDesde,
+      hasta: formHasta,
+      tipo: formTipo,
+      metodo: formMetodo,
+    }
     setFiltros(nuevos)
     setPagina(1)
     cargar(1, nuevos)
@@ -81,7 +83,9 @@ export default function TodasBoletas() {
     setFormCliente('')
     setFormDesde('')
     setFormHasta('')
-    const vacios = { cliente: '', desde: '', hasta: '' }
+    setFormTipo('')
+    setFormMetodo('')
+    const vacios = { cliente: '', desde: '', hasta: '', tipo: '', metodo: '' }
     setFiltros(vacios)
     setPagina(1)
     cargar(1, vacios)
@@ -99,7 +103,6 @@ export default function TodasBoletas() {
     try {
       await api.delete(`/boletas/${id}`)
       toast.success('Boleta eliminada')
-      // Recargar la página actual (por si quedó vacía, retroceder)
       const nuevaPagina = boletas.length === 1 && pagina > 1 ? pagina - 1 : pagina
       setPagina(nuevaPagina)
       cargar(nuevaPagina)
@@ -109,6 +112,7 @@ export default function TodasBoletas() {
   }
 
   const hayFiltros = filtros.cliente || filtros.desde || filtros.hasta
+    || filtros.tipo || filtros.metodo
   const rangoDesde = meta.total === 0 ? 0 : (meta.pagina - 1) * meta.por_pagina + 1
   const rangoHasta = Math.min(meta.pagina * meta.por_pagina, meta.total)
 
@@ -135,6 +139,37 @@ export default function TodasBoletas() {
             value={formCliente}
             onChange={(e) => setFormCliente(e.target.value)}
           />
+        </div>
+
+        <div className="filtros-campo">
+          <label htmlFor="tipo">Tipo</label>
+          <select
+            id="tipo"
+            className="input"
+            value={formTipo}
+            onChange={(e) => setFormTipo(e.target.value)}
+          >
+            <option value="">Todos</option>
+            <option value="boleta">Boleta</option>
+            <option value="factura">Factura</option>
+          </select>
+        </div>
+
+        <div className="filtros-campo">
+          <label htmlFor="metodo">Método</label>
+          <select
+            id="metodo"
+            className="input"
+            value={formMetodo}
+            onChange={(e) => setFormMetodo(e.target.value)}
+          >
+            <option value="">Todos</option>
+            <option value="efectivo">Efectivo</option>
+            <option value="debito">Débito</option>
+            <option value="credito">Crédito</option>
+            <option value="transferencia">Transferencia</option>
+            <option value="vale_vista">Vale vista</option>
+          </select>
         </div>
 
         <div className="filtros-campo">
@@ -187,11 +222,13 @@ export default function TodasBoletas() {
             <table className="tabla">
               <thead>
                 <tr>
-                  <th>N° boleta</th>
+                  <th>N°</th>
+                  <th>Tipo</th>
                   <th>Fecha</th>
                   <th>Cliente</th>
                   <th>Producto</th>
                   <th>Total</th>
+                  <th>Método</th>
                   <th>Estado</th>
                   <th></th>
                 </tr>
@@ -200,15 +237,22 @@ export default function TodasBoletas() {
                 {boletas.map((b) => (
                   <tr key={b.id}>
                     <td><strong>{b.numero_boleta}</strong></td>
+                    <td>
+                      <span className={`badge ${claseTipoDocumento(b.tipo_documento)}`}>
+                        {formatearTipo(b.tipo_documento)}
+                      </span>
+                    </td>
                     <td>{b.fecha}</td>
                     <td>{b.cliente}</td>
                     <td>{b.producto}</td>
                     <td>${Number(b.total).toFixed(2)}</td>
                     <td>
-                      <span className={`badge ${
-                        b.estado === 'confirmada' ? 'badge-success' :
-                        b.estado === 'pendiente' ? 'badge-warning' : 'badge-danger'
-                      }`}>
+                      <span className={`badge ${claseMetodoPago(b.metodo_pago)}`}>
+                        {formatearMetodo(b.metodo_pago)}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`badge ${claseEstado(b.estado)}`}>
                         {b.estado}
                       </span>
                     </td>
@@ -223,48 +267,22 @@ export default function TodasBoletas() {
             </table>
           </div>
 
-          {/* Paginación */}
           <div className="paginacion">
             <div className="paginacion-info">
               Mostrando <strong>{rangoDesde}–{rangoHasta}</strong> de <strong>{meta.total}</strong>
             </div>
-
             <div className="paginacion-controles">
-              <button
-                className="btn btn-secondary btn-sm"
-                onClick={() => irPagina(1)}
-                disabled={meta.pagina === 1 || cargando}
-                title="Primera página"
-              >
-                «
-              </button>
-              <button
-                className="btn btn-secondary btn-sm"
-                onClick={() => irPagina(meta.pagina - 1)}
-                disabled={meta.pagina === 1 || cargando}
-              >
-                Anterior
-              </button>
-
+              <button className="btn btn-secondary btn-sm" onClick={() => irPagina(1)}
+                disabled={meta.pagina === 1 || cargando}>«</button>
+              <button className="btn btn-secondary btn-sm" onClick={() => irPagina(meta.pagina - 1)}
+                disabled={meta.pagina === 1 || cargando}>Anterior</button>
               <span className="paginacion-pagina">
                 Página <strong>{meta.pagina}</strong> de <strong>{meta.total_paginas}</strong>
               </span>
-
-              <button
-                className="btn btn-secondary btn-sm"
-                onClick={() => irPagina(meta.pagina + 1)}
-                disabled={meta.pagina >= meta.total_paginas || cargando}
-              >
-                Siguiente
-              </button>
-              <button
-                className="btn btn-secondary btn-sm"
-                onClick={() => irPagina(meta.total_paginas)}
-                disabled={meta.pagina >= meta.total_paginas || cargando}
-                title="Última página"
-              >
-                »
-              </button>
+              <button className="btn btn-secondary btn-sm" onClick={() => irPagina(meta.pagina + 1)}
+                disabled={meta.pagina >= meta.total_paginas || cargando}>Siguiente</button>
+              <button className="btn btn-secondary btn-sm" onClick={() => irPagina(meta.total_paginas)}
+                disabled={meta.pagina >= meta.total_paginas || cargando}>»</button>
             </div>
           </div>
         </>

@@ -65,10 +65,10 @@ async def subir_boletas(
                 INSERT INTO boletas
                 (numero_boleta, fecha, cliente, producto, cantidad,
                  precio_unitario, descuento, total, metodo_pago,
-                 canal_venta, estado, subido_por)
+                 canal_venta, estado, tipo_documento, subido_por)
                 VALUES (:numero_boleta, :fecha, :cliente, :producto, :cantidad,
                         :precio_unitario, :descuento, :total, :metodo_pago,
-                        :canal_venta, :estado, :subido_por)
+                        :canal_venta, :estado, :tipo_documento, :subido_por)
             """),
             {
                 **boleta,
@@ -118,7 +118,7 @@ def mis_boletas(
         text(f"""
             SELECT id, numero_boleta, fecha, cliente, producto,
                    cantidad, precio_unitario, descuento, total,
-                   metodo_pago, canal_venta, estado, subido_en
+                   metodo_pago, canal_venta, estado, tipo_documento, subido_en
             FROM boletas
             {where_sql}
             ORDER BY subido_en DESC
@@ -146,11 +146,12 @@ def todas_boletas(
     cliente: str | None = Query(None),
     desde: str | None = Query(None, description="YYYY-MM-DD"),
     hasta: str | None = Query(None, description="YYYY-MM-DD"),
+    tipo_documento: str | None = Query(None, description="boleta | factura"),
+    metodo_pago: str | None = Query(None),
     usuario: dict = Depends(requiere_permiso("boletas:ver_todas")),
     db: Session = Depends(get_db),
 ):
     """Todas las boletas con paginación y filtros opcionales."""
-    # Construir WHERE dinámico
     condiciones = []
     params = {}
 
@@ -166,23 +167,28 @@ def todas_boletas(
         condiciones.append("fecha < CAST(:hasta AS date) + interval '1 day'")
         params["hasta"] = hasta
 
+    if tipo_documento:
+        condiciones.append("tipo_documento = :tipo_documento")
+        params["tipo_documento"] = tipo_documento
+
+    if metodo_pago:
+        condiciones.append("metodo_pago = :metodo_pago")
+        params["metodo_pago"] = metodo_pago
+
     where_sql = f"WHERE {' AND '.join(condiciones)}" if condiciones else ""
 
-    # Total de registros (para calcular total de páginas)
     total = db.execute(
         text(f"SELECT COUNT(*) FROM boletas {where_sql}"),
         params,
     ).scalar()
 
-    # Offset
     offset = (pagina - 1) * por_pagina
 
-    # Query paginada
     result = db.execute(
         text(f"""
             SELECT id, numero_boleta, fecha, cliente, producto,
                    cantidad, precio_unitario, descuento, total,
-                   metodo_pago, canal_venta, estado,
+                   metodo_pago, canal_venta, estado, tipo_documento,
                    subido_por, subido_en
             FROM boletas
             {where_sql}
