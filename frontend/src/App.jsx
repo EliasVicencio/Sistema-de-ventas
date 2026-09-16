@@ -2,15 +2,16 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import RutaProtegida from './rutas/RutaProtegida'
 import RutaPermiso from './rutas/RutaPermiso'
-import Layout from './components/Layout'   // ← components, no componentes
+import Layout from './components/Layout'
 
-import Login from './pages/Login'         // ← pages, no paginas
+import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import SubirBoletas from './pages/SubirBoletas'
 import MisCargas from './pages/MisCargas'
 import TodasBoletas from './pages/TodasBoletas'
 import Reportes from './pages/Reportes'
 import Auditoria from './pages/Auditoria'
+import AdminUsuarios from './pages/AdminUsuarios'
 
 export default function App() {
   return (
@@ -33,6 +34,9 @@ export default function App() {
             } />
             <Route path="auditoria" element={
               <RutaPermiso permiso="auditoria:ver"><Auditoria /></RutaPermiso>
+            } />
+            <Route path="admin/usuarios" element={
+              <RutaPermiso permiso="usuarios:gestionar"><AdminUsuarios /></RutaPermiso>
             } />
           </Route>
 

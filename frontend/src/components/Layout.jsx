@@ -55,6 +55,15 @@ const IconShield = () => (
   </svg>
 )
 
+const IconUsers = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+  </svg>
+)
+
 const IconSun = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
     <circle cx="12" cy="12" r="5" />
@@ -83,9 +92,13 @@ export default function Layout() {
   const [menuAbierto, setMenuAbierto] = useState(false)
   const menuRef = useRef(null)
 
+  // Permisos del usuario
+  const puedeSubir = usePermiso('boletas:subir')
+  const puedeVerPropias = usePermiso('boletas:ver_propias')
   const puedeVerTodas = usePermiso('boletas:ver_todas')
   const puedeReportes = usePermiso('reportes:generar')
   const puedeAuditoria = usePermiso('auditoria:ver')
+  const puedeGestionarUsuarios = usePermiso('usuarios:gestionar')
 
   useEffect(() => {
     if (!menuAbierto) return
@@ -117,6 +130,9 @@ export default function Layout() {
   const linkClass = ({ isActive }) =>
     `sidebar-link ${isActive ? 'active' : ''}`
 
+  const mostrarAnalisis = puedeVerTodas || puedeReportes
+  const mostrarAdmin = puedeAuditoria || puedeGestionarUsuarios
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -129,15 +145,21 @@ export default function Layout() {
           <NavLink to="/" end className={linkClass}>
             <IconDashboard /> Dashboard
           </NavLink>
-          <NavLink to="/subir" className={linkClass}>
-            <IconUpload /> Subir boletas
-          </NavLink>
-          <NavLink to="/mias" className={linkClass}>
-            <IconList /> Mis cargas
-          </NavLink>
 
-          {(puedeVerTodas || puedeReportes) && (
-            <div className="sidebar-section-label">Administración</div>
+          {puedeSubir && (
+            <NavLink to="/subir" className={linkClass}>
+              <IconUpload /> Subir boletas
+            </NavLink>
+          )}
+
+          {puedeVerPropias && (
+            <NavLink to="/mias" className={linkClass}>
+              <IconList /> Mis cargas
+            </NavLink>
+          )}
+
+          {mostrarAnalisis && (
+            <div className="sidebar-section-label">Análisis</div>
           )}
 
           {puedeVerTodas && (
@@ -145,11 +167,23 @@ export default function Layout() {
               <IconArchive /> Todas las boletas
             </NavLink>
           )}
+
           {puedeReportes && (
             <NavLink to="/reportes" className={linkClass}>
               <IconChart /> Reportes
             </NavLink>
           )}
+
+          {mostrarAdmin && (
+            <div className="sidebar-section-label">Administración</div>
+          )}
+
+          {puedeGestionarUsuarios && (
+            <NavLink to="/admin/usuarios" className={linkClass}>
+              <IconUsers /> Usuarios
+            </NavLink>
+          )}
+
           {puedeAuditoria && (
             <NavLink to="/auditoria" className={linkClass}>
               <IconShield /> Auditoría

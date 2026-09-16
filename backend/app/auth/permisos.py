@@ -1,15 +1,17 @@
-"""Define los permisos por rol (hardcodeado para simplicidad)."""
-
 PERMISOS_POR_ROL = {
     "cargador": [
         "boletas:subir",
         "boletas:ver_propias",
     ],
-    "supervisor": [
+    "ventas": [
         "boletas:subir",
         "boletas:ver_propias",
         "boletas:ver_todas",
         "boletas:eliminar",
+        "reportes:generar",
+    ],
+    "finanzas": [
+        "boletas:ver_todas",
         "reportes:generar",
     ],
     "admin": [

@@ -367,3 +367,10 @@
     width: 100%;
   }
 }
+
+/* Panel de usuarios */
+.tabla select.input {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: var(--fs-sm);
+}
