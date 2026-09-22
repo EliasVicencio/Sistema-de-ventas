@@ -7,6 +7,7 @@ export default function SubirBoletas() {
   const [archivo, setArchivo] = useState(null)
   const [resultado, setResultado] = useState(null)
   const [cargando, setCargando] = useState(false)
+  const [generandoDTE, setGenerandoDTE] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -42,6 +43,40 @@ export default function SubirBoletas() {
   function handleArchivo(e) {
     const file = e.target.files[0]
     if (file) setArchivo(file)
+  }
+
+  async function generarDTEPrueba() {
+    setGenerandoDTE(true)
+    try {
+      const payload = {
+        cliente_nombre: 'Cliente de Prueba SpA',
+        cliente_rut: '12.345.678-9',
+        items: [
+          { nombre: 'Producto de prueba', cantidad: 2, precio_unitario: 5000 },
+          { nombre: 'Otro producto', cantidad: 1, precio_unitario: 12000 },
+        ],
+      }
+
+      const response = await api.post('/dte/emitir-prueba', payload, {
+        responseType: 'blob',
+      })
+
+      const blob = new Blob([response.data], { type: 'application/pdf' })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'factura_prueba.pdf'
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      window.URL.revokeObjectURL(url)
+
+      toast.success('DTE de prueba generado')
+    } catch (err) {
+      toast.error('No se pudo generar el DTE de prueba')
+    } finally {
+      setGenerandoDTE(false)
+    }
   }
 
   return (
@@ -96,6 +131,26 @@ export default function SubirBoletas() {
           {cargando ? 'Procesando...' : 'Subir y procesar'}
         </button>
       </form>
+
+      {/* Sección de DTE de prueba */}
+      <div className="card" style={{ marginTop: 24, maxWidth: 640 }}>
+        <div className="card-title">Generar DTE de prueba</div>
+        <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 12 }}>
+          Genera un PDF de factura electrónica con datos ficticios para probar el flujo.
+        </p>
+        <button
+          className="btn btn-secondary"
+          onClick={generarDTEPrueba}
+          disabled={generandoDTE}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          {generandoDTE ? 'Generando...' : 'Generar DTE (PDF)'}
+        </button>
+      </div>
 
       {resultado && !resultado.error && (
         <div style={{ marginTop: 24 }}>

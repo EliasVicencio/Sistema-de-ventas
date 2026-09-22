@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    @page { size: letter; margin: 1.5cm; }
+    body { font-family: Arial, sans-serif; font-size: 12px; color: #333; }
+    
+    /* Header con tabla (compatible con xhtml2pdf) */
+    .header-table { width: 100%; margin-bottom: 20px; }
+    .header-table td { vertical-align: top; padding: 10px; }
+    .emisor { border: 2px solid #333; }
+    .dte-info { border: 2px solid #333; text-align: right; }
+    
+    .receptor { border: 1px solid #999; padding: 10px; margin-bottom: 20px; }
+    
+    table.items { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    table.items th { background: #2563eb; color: white; padding: 8px; text-align: left; }
+    table.items td { border-bottom: 1px solid #ddd; padding: 6px; }
+    
+    .totales { margin-top: 20px; text-align: right; }
+    .totales .linea { margin: 4px 0; }
+    .total-final { font-size: 16px; font-weight: bold; border-top: 2px solid #333; padding-top: 8px; margin-top: 8px; }
+    
+    .footer { margin-top: 30px; font-size: 10px; color: #666; text-align: center; }
+  </style>
+</head>
+<body>
+  <table class="header-table">
+    <tr>
+      <td class="emisor" width="50%">
+        <strong>{{ emisor_nombre }}</strong><br>
+        RUT: {{ emisor_rut }}<br>
+        Giro: {{ emisor_giro }}<br>
+        {{ emisor_direccion }}
+      </td>
+      <td class="dte-info" width="50%">
+        <strong>R.U.T.: {{ emisor_rut }}</strong><br>
+        <strong>FACTURA ELECTRÓNICA</strong><br>
+        N° {{ folio }}<br>
+        Fecha: {{ fecha }}
+      </td>
+    </tr>
+  </table>
+
+  <div class="receptor">
+    <strong>Receptor:</strong><br>
+    {{ cliente_nombre }}<br>
+    RUT: {{ cliente_rut }}
+  </div>
+
+  <table class="items">
+    <thead>
+      <tr>
+        <th>Descripción</th>
+        <th>Cantidad</th>
+        <th>P. Unitario</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td>{{ item.nombre }}</td>
+        <td>{{ item.cantidad }}</td>
+        <td>${{ "%.2f"|format(item.precio_unitario) }}</td>
+        <td>${{ "%.2f"|format(item.cantidad * item.precio_unitario) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="totales">
+    <div class="linea">Neto: ${{ "%.2f"|format(neto) }}</div>
+    <div class="linea">IVA (19%): ${{ "%.2f"|format(iva) }}</div>
+    <div class="linea total-final">TOTAL: ${{ "%.2f"|format(total) }}</div>
+  </div>
+
+  <div class="footer">
+    Documento generado como prueba. Sin validez tributaria.
+  </div>
+</body>
+</html>

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import auth, boletas, reportes, admin
+from app.routers import auth, boletas, reportes, admin, dte
 from app.middleware.rate_limit import RateLimitMiddleware
 
 app = FastAPI(title="Sistema de Ventas", version="1.0.0")
@@ -30,6 +30,7 @@ app.include_router(auth.router, prefix="/api")
 app.include_router(boletas.router, prefix="/api")
 app.include_router(reportes.router, prefix="/api")
 app.include_router(admin.router, prefix="/api")
+app.include_router(dte.router, prefix="/api")
 
 
 @app.get("/api/health")

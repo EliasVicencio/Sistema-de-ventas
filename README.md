@@ -8,16 +8,6 @@
 [![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python)](https://www.python.org/)
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)](https://react.dev/)
 
-## 📸 Screenshots
-
-| Login | Dashboard |
-|:---:|:---:|
-| ![Login](docs/screenshots/login.png) | ![Dashboard](docs/screenshots/dashboard.png) |
-
-| Reportes | Modo oscuro |
-|:---:|:---:|
-| ![Reportes](docs/screenshots/reportes.png) | ![Dark mode](docs/screenshots/dark-mode.png) |
-
 ## 🚀 Demo
 
 - **URL**: https://sistema-de-ventas-bay.vercel.app/
@@ -31,9 +21,19 @@
 ### 🔐 Autenticación y permisos
 - Autenticación con **Supabase Auth** usando **JWT firmado en ES256**.
 - Validación de tokens contra **JWKS público** (sin almacenar secretos compartidos).
-- **RBAC** (Role-Based Access Control) con 3 roles y 7 permisos granulares.
+- **RBAC** (Role-Based Access Control) con 4 roles (admin, ventas, finanzas, cargador) y 7 permisos granulares.
+- **Gestión completa de usuarios** desde la interfaz: crear, cambiar rol, resetear contraseña y eliminar.
 - Rate limiting por IP con middleware personalizado.
 - Sesión persistente con renovación automática de tokens.
+
+### 👥 Roles y permisos
+
+| Rol | Permisos |
+|-----|----------|
+| **Admin** | Todos (incluye gestión de usuarios y auditoría) |
+| **Ventas** | Subir boletas, ver todas, eliminar, generar reportes |
+| **Finanzas** | Ver todas las boletas, generar reportes (solo lectura) |
+| **Cargador** | Subir boletas, ver solo las propias |
 
 ### 📄 Gestión de documentos
 - **Carga masiva** de boletas y facturas vía CSV.
@@ -42,6 +42,7 @@
 - **5 métodos de pago**: efectivo, débito, crédito, transferencia y vale vista.
 - Detección de duplicados y reporte detallado de errores por fila.
 - **Paginación** y filtros (cliente, fecha, tipo, método de pago).
+- **Generación de DTE de prueba** (PDF con formato de factura electrónica chilena)
 
 ### 📊 Reportes y analítica
 - **Dashboard** con métricas del mes: boletas, ventas totales, pendientes y producto más vendido.
@@ -81,10 +82,12 @@
 ## 🏗 Arquitectura
 
 ```mermaid
-graph LR
+graph TB
     A[Usuario] -->|HTTPS| B[React SPA<br/>Vercel Edge]
-    B -->|JWT| C[FastAPI<br/>Vercel Serverless]
-    C -->|SQLAlchemy| D[(PostgreSQL<br/>Supabase)]
-    B -->|OAuth2| E[Supabase Auth]
+    B -->|Login| E[Supabase Auth]
     E -->|JWT ES256| B
+    B -->|JWT en cada request| C[FastAPI<br/>Vercel Serverless]
     C -->|JWKS| E
+    C -->|SQLAlchemy| D[(PostgreSQL<br/>Supabase)]
+    C -->|Admin API<br/>gestión usuarios| E
+    C -->|xhtml2pdf| F[Generación de DTE<br/>interno]
