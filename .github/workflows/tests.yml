@@ -29,6 +29,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Verificar imports del backend
+        working-directory: ./backend
+        run: python -c "from app.main import app; print('Imports OK')"
+        env:
+          SUPABASE_URL: https://test.supabase.co
+          SUPABASE_JWT_SECRET: test-secret
+          SUPABASE_SERVICE_ROLE_KEY: test-service-role
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+          CORS_ORIGINS: http://localhost:5173
+
       - name: Correr tests
         working-directory: ./backend
         run: pytest --tb=short
