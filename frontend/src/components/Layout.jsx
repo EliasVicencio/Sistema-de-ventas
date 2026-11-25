@@ -86,7 +86,7 @@ const IconMoon = () => (
 
 export default function Layout() {
   const { usuario, rol, logout } = useAuth()
-  const { tema, toggleTema } = useTheme()
+  const { tema, setTema } = useTheme()
   const navigate = useNavigate()
 
   const [menuAbierto, setMenuAbierto] = useState(false)
@@ -192,24 +192,27 @@ export default function Layout() {
         </nav>
 
         <div className="sidebar-user" ref={menuRef}>
-          <button
-            onClick={toggleTema}
-            className="sidebar-theme-toggle"
-            title={tema === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-            aria-label="Cambiar tema"
-          >
-            {tema === 'dark' ? (
-              <>
-                <IconSun />
-                <span>Modo claro</span>
-              </>
-            ) : (
-              <>
-                <IconMoon />
-                <span>Modo oscuro</span>
-              </>
-            )}
-          </button>
+          <div className="sidebar-theme-switch" role="group" aria-label="Seleccionar apariencia">
+            <button
+              type="button"
+              className={`sidebar-theme-option ${tema === 'light' ? 'active' : ''}`}
+              onClick={() => setTema('light')}
+              aria-pressed={tema === 'light'}
+            >
+              <IconSun />
+              <span>Claro</span>
+            </button>
+
+            <button
+              type="button"
+              className={`sidebar-theme-option ${tema === 'dark' ? 'active' : ''}`}
+              onClick={() => setTema('dark')}
+              aria-pressed={tema === 'dark'}
+            >
+              <IconMoon />
+              <span>Oscuro</span>
+            </button>
+          </div>
 
           <div className="sidebar-user-wrapper">
             <button

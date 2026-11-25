@@ -280,9 +280,19 @@ def cambiar_rol(
         {"uid": user_id},
     )
 
+    # El trigger de Supabase ya asignó un rol predeterminado.
+    # Eliminamos ese registro y cualquier duplicado antes de guardar el rol elegido.
     db.execute(
-        text("INSERT INTO user_roles (user_id, role) VALUES (:uid, CAST(:rol AS app_role))"),
-        {"uid": user_id, "rol": nuevo_rol},
+        text("DELETE FROM user_roles WHERE user_id = :uid"),
+        {"uid": user_id},
+    )
+
+    db.execute(
+        text("""
+            INSERT INTO user_roles (user_id, role)
+            VALUES (:uid, CAST(:rol AS app_role))
+        """),
+        {"uid": user_id, "rol": rol},
     )
 
     db.execute(

@@ -1,3 +1,4 @@
+
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
@@ -15,6 +16,7 @@ export default function Login() {
   async function handleSubmit(e) {
     e.preventDefault()
     setCargando(true)
+
     try {
       await login(email, password)
       toast.success('Sesión iniciada correctamente')
@@ -27,17 +29,25 @@ export default function Login() {
   }
 
   return (
-    <div className="login-page">
+    <main className="login-page">
+      <div className="login-overlay" />
+
       <div className="login-card">
         <div className="login-brand">
-          <Logo size={52} />
+          <Logo size={56} />
         </div>
-        <h1 className="login-title">Sistema de Ventas</h1>
-        <p className="login-subtitle">Ingresa con tu cuenta para continuar</p>
+
+        <div className="login-heading">
+          <span className="login-eyebrow">BIENVENIDO</span>
+          <h1 className="login-title">Sistema de Ventas</h1>
+          <p className="login-subtitle">
+            Ingresa con tu cuenta para continuar
+          </p>
+        </div>
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="login-field">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">Correo electrónico</label>
             <input
               id="email"
               type="email"
@@ -47,6 +57,7 @@ export default function Login() {
               onChange={(e) => setEmail(e.target.value)}
               required
               autoComplete="email"
+              disabled={cargando}
             />
           </div>
 
@@ -61,14 +72,31 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)}
               required
               autoComplete="current-password"
+              disabled={cargando}
             />
           </div>
 
-          <button type="submit" className="btn btn-primary btn-full" disabled={cargando}>
-            {cargando ? 'Ingresando...' : 'Ingresar'}
+          <button
+            type="submit"
+            className="btn btn-primary btn-full login-submit"
+            disabled={cargando}
+          >
+            {cargando ? (
+              <>
+                <span className="login-spinner" />
+                Ingresando...
+              </>
+            ) : (
+              'Iniciar sesión'
+            )}
           </button>
         </form>
+
+        <div className="login-footer">
+          <span>Sistema de Ventas</span>
+          <span>Acceso seguro</span>
+        </div>
       </div>
-    </div>
+    </main>
   )
 }

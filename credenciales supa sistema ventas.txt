@@ -1,0 +1,3 @@
+JHgbbciy4phsMAJw
+
+postgresql+psycopg2://postgres.nuarsoduapzhmcziwykt:JHgbbciy4phsMAJw@aws-0-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require

@@ -1,132 +1,1131 @@
-/* Login */
+
+/* ============================================
+   LOGIN - DISEÑO CON IMAGEN DE FONDO
+   ============================================ */
+
 .login-page {
+  position: relative;
   min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
-  padding: var(--sp-4);
+  padding: 32px 20px;
+  overflow: hidden;
+  background-image: url('/images/BackgroundLogin.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Capa oscura sobre la imagen */
+.login-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(8, 20, 42, 0.78),
+      rgba(15, 35, 65, 0.48),
+      rgba(5, 15, 30, 0.72)
+    );
+  backdrop-filter: blur(2px);
 }
 
 .login-card {
-  background: var(--bg-card);
-  border-radius: var(--r-lg);
-  padding: var(--sp-7) var(--sp-6);
+  position: relative;
+  z-index: 1;
   width: 100%;
-  max-width: 400px;
-  box-shadow: var(--shadow-lg);
+  max-width: 500px; /* Más espacio hacia los lados */
+  padding: 30px 48px 22px; /* Menos altura y más espacio lateral */
+  background: rgba(255, 255, 255, .96);
+  border: 1px solid rgba(255, 255, 255, .55);
+  border-radius: 22px;
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, .28),
+    0 5px 15px rgba(0, 0, 0, .08);
+  animation: login-appear .65s ease both;
 }
 
 .login-brand {
   display: flex;
-  align-items: center;
-  gap: var(--sp-3);
   justify-content: center;
-  margin-bottom: var(--sp-5);
-}
-
-.login-brand-icon {
-  width: 44px;
-  height: 44px;
-  background: var(--primary);
-  color: white;
-  border-radius: var(--r-md);
-  display: flex;
   align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: var(--fs-lg);
+  margin-bottom: 16px;
 }
 
-.login-title {
-  font-size: var(--fs-xl);
-  font-weight: 700;
+.login-heading {
   text-align: center;
-  margin-bottom: var(--sp-1);
-  letter-spacing: -0.01em;
-}
-
-.login-subtitle {
-  text-align: center;
-  color: var(--text-secondary);
-  font-size: var(--fs-sm);
-  margin-bottom: var(--sp-5);
+  margin-bottom: 22px;
 }
 
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-3);
+  gap: 16px;
+}
+
+.login-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: 14px;
+  border-top: 1px solid #e2e8f0;
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+@media (max-width: 600px) {
+  .login-card {
+    max-width: 420px;
+    padding: 30px 25px 22px;
+    border-radius: 18px;
+  }
+
+  .login-title {
+    font-size: 23px;
+  }
+
+  .login-heading {
+    margin-bottom: 20px;
+  }
+}
+
+/* =========================================
+   LOGIN - MODO OSCURO
+   ========================================= */
+
+:root[data-theme="dark"] .login-card {
+  background: rgba(15, 23, 42, .96);
+  border-color: rgba(71, 85, 105, .6);
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, .45),
+    0 5px 15px rgba(0, 0, 0, .2);
+}
+
+:root[data-theme="dark"] .login-title {
+  color: #f8fafc;
+}
+
+:root[data-theme="dark"] .login-subtitle {
+  color: #94a3b8;
+}
+
+:root[data-theme="dark"] .login-eyebrow {
+  color: #60a5fa;
+}
+
+:root[data-theme="dark"] .login-field label {
+  color: #cbd5e1;
+}
+
+:root[data-theme="dark"] .login-field .input {
+  color: #f1f5f9;
+  background: #1e293b;
+  border-color: #334155;
+}
+
+:root[data-theme="dark"] .login-field .input::placeholder {
+  color: #64748b;
+}
+
+:root[data-theme="dark"] .login-field .input:focus {
+  background: #263449;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, .15);
+}
+
+:root[data-theme="dark"] .login-footer {
+  color: #64748b;
+  border-top-color: #334155;
+}
+
+/* Logo */
+.login-brand {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+/* Encabezado */
+.login-heading {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.login-eyebrow {
+  display: inline-block;
+  margin-bottom: 10px;
+  color: #2563eb;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.login-title {
+  margin: 0 0 9px;
+  color: #0f172a;
+  font-size: 26px;
+  font-weight: 750;
+  letter-spacing: -0.7px;
+}
+
+.login-subtitle {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Formulario */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 21px;
 }
 
 .login-field {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-1);
+  gap: 8px;
 }
 
 .login-field label {
-  font-size: var(--fs-sm);
-  font-weight: 500;
-  color: var(--text-secondary);
+  color: #334155;
+  font-size: 13px;
+  font-weight: 650;
 }
 
-/* Subir boletas */
+.login-field .input {
+  width: 100%;
+  min-height: 46px;
+  padding: 12px 14px;
+  color: #0f172a;
+  background: #f8fafc;
+  border: 1px solid #dbe2ea;
+  border-radius: 10px;
+  font-size: 14px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.login-field .input::placeholder {
+  color: #94a3b8;
+}
+
+.login-field .input:focus {
+  outline: none;
+  background: #ffffff;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+}
+
+.login-field .input:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Botón */
+.login-submit {
+  min-height: 48px;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 650;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.login-submit:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+}
+
+.login-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Spinner */
+.login-spinner {
+  width: 17px;
+  height: 17px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: login-spin 0.7s linear infinite;
+}
+
+/* Pie */
+.login-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 30px;
+  padding-top: 19px;
+  border-top: 1px solid #e2e8f0;
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+/* Animaciones */
+@keyframes login-appear {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes login-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .login-page {
+    padding: 20px 16px;
+    background-position: center;
+  }
+
+  .login-card {
+    max-width: 420px;
+    padding: 34px 25px 24px;
+    border-radius: 18px;
+  }
+
+  .login-title {
+    font-size: 23px;
+  }
+
+  .login-heading {
+    margin-bottom: 25px;
+  }
+}
+
+@media (max-width: 360px) {
+  .login-card {
+    padding: 28px 20px 22px;
+  }
+
+  .login-title {
+    font-size: 21px;
+  }
+
+  .login-footer {
+    font-size: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-card {
+    animation: none;
+  }
+
+  .login-spinner {
+    animation: none;
+  }
+}
+
+/* ============================================
+   SUBIR BOLETAS
+   ============================================ */
+
 .upload-form {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: var(--sp-4);
-  max-width: 640px;
+  width: 100%;
+  max-width: 760px;
+  padding: var(--sp-5);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .upload-zone {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: var(--sp-2);
+  width: 100%;
+  min-height: 230px;
+  padding: var(--sp-6);
   border: 2px dashed var(--border-strong);
   border-radius: var(--r-md);
-  padding: var(--sp-7) var(--sp-5);
+  background: var(--bg-app);
   text-align: center;
-  background: var(--bg-card);
-  transition: border-color 0.15s, background 0.15s;
   cursor: pointer;
-  min-height: 220px;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
 .upload-zone:hover {
   border-color: var(--primary);
-  background: rgba(37, 99, 235, 0.05);
+  background: rgba(37, 99, 235, 0.04);
+}
+
+.upload-zone:active {
+  transform: scale(0.995);
+}
+
+.upload-zone:focus-within {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
 }
 
 .upload-zone.has-file {
-  border-color: var(--success);
-  background: rgba(16, 185, 129, 0.05);
-  border-style: solid;
+  border: 2px solid var(--success);
+  background: rgba(16, 185, 129, 0.06);
 }
 
 .upload-zone-icon {
-  width: 48px;
-  height: 48px;
-  color: var(--text-muted);
+  width: 54px;
+  height: 54px;
+  padding: 12px;
   margin-bottom: var(--sp-2);
+  color: var(--primary);
+  background: rgba(37, 99, 235, 0.09);
+  border-radius: 16px;
+  transition: color 0.2s ease, background 0.2s ease;
 }
 
 .upload-zone.has-file .upload-zone-icon {
   color: var(--success);
+  background: rgba(16, 185, 129, 0.12);
 }
 
 .upload-zone-title {
+  max-width: 100%;
   font-size: var(--fs-md);
-  font-weight: 600;
+  font-weight: 650;
   color: var(--text-primary);
+  overflow-wrap: anywhere;
 }
 
 .upload-zone-hint {
   font-size: var(--fs-sm);
   color: var(--text-secondary);
+  line-height: 1.5;
 }
+
+.upload-form > .btn {
+  min-width: 190px;
+}
+
+/* DTE de prueba */
+
+.upload-dte-card {
+  width: 100%;
+  max-width: 760px;
+  margin-top: var(--sp-4);
+  padding: var(--sp-5);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.upload-dte-header {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-2);
+}
+
+.upload-dte-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  color: var(--primary);
+  background: rgba(37, 99, 235, 0.09);
+  border-radius: var(--r-md);
+}
+
+.upload-dte-description {
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  margin-bottom: var(--sp-4);
+}
+
+.upload-dte-card .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+}
+
+/* Resultados de carga */
+
+.upload-results {
+  width: 100%;
+  max-width: 760px;
+  margin-top: var(--sp-5);
+}
+
+.upload-results .stats-grid {
+  margin-bottom: var(--sp-4);
+}
+
+.upload-results .stat-card {
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.upload-results .tabla-wrap {
+  margin-top: var(--sp-3);
+}
+
+/* Responsive */
+
+@media (max-width: 600px) {
+  .upload-form {
+    padding: var(--sp-3);
+  }
+
+  .upload-zone {
+    min-height: 200px;
+    padding: var(--sp-4);
+  }
+
+  .upload-zone-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .upload-zone-title {
+    font-size: var(--fs-sm);
+  }
+
+  .upload-form > .btn {
+    width: 100%;
+  }
+
+  .upload-dte-card {
+    padding: var(--sp-4);
+  }
+
+  .upload-dte-card .btn {
+    width: 100%;
+  }
+}
+
+
+/* ============================================
+   ICONOS - PESTAÑA SUBIR BOLETAS
+   ============================================ */
+
+/* Evita que los SVG hereden dimensiones globales */
+.upload-page svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+  max-width: 100%;
+  flex-shrink: 0;
+}
+
+/* Icono principal de importación */
+.upload-panel-icon {
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: var(--r-md);
+  color: var(--primary);
+  background: rgba(37, 99, 235, 0.09);
+}
+
+.upload-panel-icon svg {
+  width: 23px;
+  height: 23px;
+}
+
+/* Icono de la zona de carga */
+.upload-zone-icon {
+  width: 58px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 16px;
+  color: var(--primary);
+  background: rgba(37, 99, 235, 0.09);
+}
+
+.upload-zone-icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.upload-zone-icon.file-selected {
+  color: var(--success);
+  background: rgba(16, 185, 129, 0.12);
+}
+
+/* Icono de información */
+.upload-file-note svg {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+}
+
+/* Icono del botón principal */
+.upload-submit svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* Icono de herramienta DTE */
+.upload-test-icon {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: var(--r-md);
+  color: var(--primary);
+  background: rgba(37, 99, 235, 0.09);
+}
+
+.upload-test-icon svg {
+  width: 23px;
+  height: 23px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .upload-panel-icon,
+  .upload-test-icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+  }
+
+  .upload-panel-icon svg,
+  .upload-test-icon svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .upload-zone-icon {
+    width: 52px;
+    height: 52px;
+  }
+
+  .upload-zone-icon svg {
+    width: 25px;
+    height: 25px;
+  }
+}
+
+
+/* ============================================
+   ESPACIADO GENERAL - SUBIR BOLETAS
+   ============================================ */
+
+.upload-page {
+  width: 100%;
+  padding-bottom: var(--sp-6);
+}
+
+/* Separación del encabezado */
+.upload-page .page-header {
+  margin-bottom: var(--sp-6);
+}
+
+/* Distribución de los paneles */
+.upload-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 1fr);
+  align-items: stretch;
+  gap: var(--sp-5);
+  margin-bottom: var(--sp-6);
+}
+
+/* Tarjetas principales */
+.upload-panel,
+.upload-test-panel {
+  padding: var(--sp-6);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Encabezado de importación */
+.upload-panel-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-5);
+}
+
+.upload-panel-heading h2,
+.upload-test-content h2 {
+  margin: 0 0 var(--sp-2);
+  color: var(--text-primary);
+  font-size: var(--fs-lg);
+}
+
+.upload-panel-heading p,
+.upload-test-content p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+}
+
+/* Formulario */
+.upload-panel form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+/* Zona de carga */
+.upload-zone {
+  margin-top: var(--sp-2);
+  margin-bottom: var(--sp-2);
+  padding: var(--sp-7) var(--sp-5);
+  min-height: 240px;
+  gap: var(--sp-3);
+}
+
+/* Información y botón */
+.upload-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+  margin-top: var(--sp-2);
+}
+
+.upload-file-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  max-width: 360px;
+  color: var(--text-secondary);
+  font-size: var(--fs-xs);
+  line-height: 1.6;
+}
+
+.upload-submit {
+  padding: 11px 20px;
+}
+
+/* Panel DTE */
+.upload-test-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: var(--sp-4);
+}
+
+.upload-test-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-3);
+}
+
+.upload-test-label {
+  margin-bottom: var(--sp-1);
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.07em;
+}
+
+.upload-test-button {
+  margin-top: var(--sp-3);
+}
+
+/* Resultados */
+.upload-results {
+  width: 100%;
+  margin-top: var(--sp-6);
+  padding: var(--sp-6);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.upload-results-heading {
+  margin-bottom: var(--sp-5);
+}
+
+.upload-results-heading h2 {
+  margin: 0 0 var(--sp-2);
+  color: var(--text-primary);
+  font-size: var(--fs-lg);
+}
+
+.upload-results-heading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.upload-result-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-5);
+}
+
+.upload-result-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-5);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--bg-app);
+}
+
+.upload-result-stat strong {
+  font-size: 30px;
+  line-height: 1.2;
+}
+
+.upload-rejected {
+  margin-top: var(--sp-5);
+}
+
+.upload-rejected h3 {
+  margin-bottom: var(--sp-4);
+  color: var(--text-primary);
+  font-size: var(--fs-md);
+}
+
+.upload-error {
+  padding: var(--sp-5);
+  border: 1px solid var(--danger);
+  border-radius: var(--r-md);
+}
+
+/* Adaptación móvil */
+@media (max-width: 900px) {
+  .upload-layout {
+    grid-template-columns: 1fr;
+    gap: var(--sp-5);
+  }
+
+  .upload-test-panel {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 600px) {
+  .upload-panel,
+  .upload-test-panel,
+  .upload-results {
+    padding: var(--sp-4);
+  }
+
+  .upload-panel-heading {
+    align-items: flex-start;
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-5);
+  }
+
+  .upload-zone {
+    min-height: 210px;
+    padding: var(--sp-5) var(--sp-3);
+  }
+
+  .upload-form-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .upload-file-note {
+    max-width: 100%;
+  }
+
+  .upload-submit,
+  .upload-test-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .upload-test-panel {
+    flex-direction: column;
+    gap: var(--sp-3);
+  }
+
+  .upload-result-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ============================================
+   ESTADOS DE PROCESAMIENTO Y RESULTADOS
+   ============================================ */
+
+/* Evitar cambios de archivo durante la carga */
+.upload-zone.is-disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+/* Indicador de procesamiento */
+.upload-processing {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: var(--sp-4);
+  padding: var(--sp-4);
+  border: 1px solid rgba(59, 130, 246, 0.22);
+  border-radius: var(--r-md);
+  background: rgba(59, 130, 246, 0.06);
+}
+
+.upload-processing-dot {
+  width: 10px;
+  height: 10px;
+  min-width: 10px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: #3b82f6;
+  animation: upload-pulse 1.3s ease-in-out infinite;
+}
+
+.upload-processing strong,
+.upload-processing span {
+  display: block;
+}
+
+.upload-processing strong {
+  margin-bottom: 4px;
+  color: var(--text-primary);
+  font-size: var(--fs-sm);
+}
+
+.upload-processing div span {
+  color: var(--text-secondary);
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+}
+
+/* Spinner de botones */
+.upload-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: upload-spin 0.7s linear infinite;
+}
+
+.upload-submit,
+.upload-test-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+}
+
+.upload-submit:disabled,
+.upload-test-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Tarjetas de estado */
+.upload-status-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-5);
+  padding: var(--sp-5);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--bg-app);
+}
+
+.upload-status-card strong {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--text-primary);
+  font-size: var(--fs-md);
+}
+
+.upload-status-card p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+}
+
+.upload-status-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 12px;
+}
+
+.upload-status-icon svg {
+  width: 21px;
+  height: 21px;
+}
+
+/* Éxito */
+.upload-status-success {
+  border-color: rgba(22, 163, 74, 0.25);
+  background: rgba(22, 163, 74, 0.07);
+}
+
+.upload-status-success .upload-status-icon {
+  color: #16a34a;
+  background: rgba(22, 163, 74, 0.13);
+}
+
+/* Resultado parcial */
+.upload-status-warning {
+  border-color: rgba(217, 119, 6, 0.25);
+  background: rgba(217, 119, 6, 0.07);
+}
+
+.upload-status-warning .upload-status-icon {
+  color: #d97706;
+  background: rgba(217, 119, 6, 0.13);
+}
+
+/* Error o rechazo total */
+.upload-status-danger,
+.upload-error {
+  border-color: rgba(220, 38, 38, 0.25);
+  background: rgba(220, 38, 38, 0.06);
+}
+
+.upload-status-danger .upload-status-icon,
+.upload-error .upload-status-icon {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.12);
+}
+
+/* Archivo vacío */
+.upload-status-empty {
+  border-color: var(--border);
+}
+
+.upload-status-empty .upload-status-icon {
+  color: var(--text-secondary);
+  background: var(--bg-card);
+}
+
+/* Error de comunicación o procesamiento */
+.upload-error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-4);
+  padding: var(--sp-5);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  border-radius: var(--r-md);
+}
+
+.upload-error > div:last-child {
+  min-width: 0;
+}
+
+/* Animaciones */
+@keyframes upload-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes upload-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.75);
+  }
+}
+
+/* Adaptación móvil */
+@media (max-width: 600px) {
+  .upload-status-card,
+  .upload-error {
+    gap: var(--sp-3);
+    padding: var(--sp-4);
+  }
+
+  .upload-status-icon {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+  }
+
+  .upload-status-icon svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .upload-status-card strong {
+    font-size: var(--fs-sm);
+  }
+
+  .upload-processing {
+    padding: var(--sp-3);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .upload-spinner,
+  .upload-processing-dot {
+    animation: none;
+  }
+}
+
 
 /* Reporte */
 .reporte-mes-picker {

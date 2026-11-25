@@ -276,3 +276,73 @@
   .sidebar.open { transform: translateX(0); }
   .main { margin-left: 0; padding: var(--sp-4); }
 }
+
+/* =========================================
+   SELECTOR DE TEMA
+   ========================================= */
+
+.sidebar-theme-switch {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 14px;
+  border-radius: 12px;
+  background: var(--theme-switch-bg, #f1f5f9);
+  border: 1px solid var(--theme-switch-border, #e2e8f0);
+}
+
+.sidebar-theme-option {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--theme-switch-text, #64748b);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.sidebar-theme-option svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.sidebar-theme-option:hover {
+  color: var(--theme-switch-hover, #0f172a);
+}
+
+.sidebar-theme-option.active {
+  background: var(--theme-switch-active-bg, #ffffff);
+  color: var(--theme-switch-active-text, #0f172a);
+  border-color: var(--theme-switch-active-border, #e2e8f0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  font-weight: 600;
+}
+
+.sidebar-theme-option:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Modo oscuro */
+:root[data-theme="dark"] .sidebar-theme-switch {
+  --theme-switch-bg: #172033;
+  --theme-switch-border: #293548;
+  --theme-switch-text: #94a3b8;
+  --theme-switch-hover: #e2e8f0;
+  --theme-switch-active-bg: #263449;
+  --theme-switch-active-text: #f8fafc;
+  --theme-switch-active-border: #3b4b61;
+}
