@@ -24,19 +24,14 @@ export function AuthProvider({ children }) {
     }
   }
 
-  useEffect(() => {
-    async function init() {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session) {
-        await cargarPerfil()
-      }
-      setCargando(false)
-    }
-    init()
 
-    const { data: sub } = supabase.auth.onAuthStateChange(async (event, session) => {
+  useEffect(() => {
+    let activo = true
+
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
-        await cargarPerfil()
+        // Ejecutar fuera del callback de Supabase
+        Promise.resolve().then(() => cargarPerfil())
       } else if (event === 'SIGNED_OUT') {
         setUsuario(null)
         setPermisos([])
@@ -44,8 +39,31 @@ export function AuthProvider({ children }) {
       }
     })
 
-    return () => sub.subscription.unsubscribe()
+    async function init() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+
+        // Si existe una sesión anterior, cerrarla solo en este dispositivo
+        if (session) {
+          await supabase.auth.signOut({ scope: 'local' })
+        }
+      } catch (err) {
+        console.error('Error al inicializar autenticación:', err)
+      } finally {
+        if (activo) {
+          setCargando(false)
+        }
+      }
+    }
+
+    init()
+
+    return () => {
+      activo = false
+      sub.subscription.unsubscribe()
+    }
   }, [])
+
 
   async function login(email, password) {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
