@@ -10,7 +10,7 @@
 
 ## 🚀 Demo
 
-- **URL**: https://sistema-de-ventas-bay.vercel.app/
+- **URL**: https://puntodeventa-sistema.vercel.app/
 - **Usuario**: `admin@ventas.com`
 - **Contraseña**: `admin123`
 

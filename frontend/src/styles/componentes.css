@@ -357,3 +357,99 @@
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* =========================================
+   ACCIONES DE ADMINISTRACIÓN DE USUARIOS
+   ========================================= */
+
+.tabla .user-actions-cell {
+  width: 110px;
+  min-width: 110px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.user-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.user-actions .user-action-btn {
+  appearance: none;
+  -webkit-appearance: none;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  min-height: 38px;
+  flex: 0 0 38px;
+
+  padding: 0;
+  margin: 0;
+
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+
+  cursor: pointer;
+  line-height: 1;
+  transition: background .2s ease, border-color .2s ease, color .2s ease;
+}
+
+.user-actions .user-action-btn svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  flex: 0 0 20px;
+
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Restablecer contraseña */
+.user-actions .user-action-reset {
+  color: #2563eb;
+}
+
+.user-actions .user-action-reset:hover {
+  background: rgba(37, 99, 235, .10);
+  border-color: rgba(37, 99, 235, .25);
+}
+
+/* Eliminar usuario */
+.user-actions .user-action-delete {
+  color: #dc2626;
+}
+
+.user-actions .user-action-delete:hover {
+  background: rgba(220, 38, 38, .10);
+  border-color: rgba(220, 38, 38, .25);
+}
+
+/* Accesibilidad */
+.user-actions .user-action-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Modo oscuro */
+:root[data-theme="dark"] .user-actions .user-action-reset {
+  color: #60a5fa;
+}
+
+:root[data-theme="dark"] .user-actions .user-action-delete {
+  color: #f87171;
+}

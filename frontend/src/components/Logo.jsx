@@ -1,42 +1,46 @@
-export default function Logo({ size = 32, variant = 'default' }) {
-  const colors = {
-    default: { bg: '#2563eb', fg: '#ffffff' },
-    dark: { bg: '#0f172a', fg: '#ffffff' },
-    primary: { bg: '#2563eb', fg: '#ffffff' },
-  }
 
-  const { bg, fg } = colors[variant] || colors.default
-
+export default function Logo({ size = 48, showName = false, className = '' }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 48 48"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-label="Sistema de Ventas"
+    <div
+      className={`app-logo ${className}`}
+      style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}
     >
-      {/* Fondo redondeado */}
-      <rect width="48" height="48" rx="10" fill={bg} />
-
-      {/* Boleta */}
-      <path
-        d="M14 13 L34 13 L34 35 L30 33 L26 35 L22 33 L18 35 L14 33 Z"
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 64 64"
         fill="none"
-        stroke={fg}
-        strokeWidth="2"
-        strokeLinejoin="round"
-      />
+        xmlns="http://www.w3.org/2000/svg"
+        role="img"
+        aria-label="Ventas en Subida"
+      >
+        {/* Barras de crecimiento */}
+        <rect x="8" y="39" width="11" height="17" rx="3" fill="#2563EB" />
+        <rect x="25" y="28" width="11" height="28" rx="3" fill="#2563EB" />
+        <rect x="42" y="17" width="11" height="39" rx="3" fill="#2563EB" />
 
-      {/* Líneas */}
-      <line x1="18" y1="20" x2="30" y2="20" stroke={fg} strokeWidth="1.8" strokeLinecap="round" />
-      <line x1="18" y1="25" x2="28" y2="25" stroke={fg} strokeWidth="1.8" strokeLinecap="round" />
+        {/* Flecha ascendente */}
+        <path
+          d="M10 29L27 20L39 24L55 8"
+          stroke="#1D4ED8"
+          strokeWidth="5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M43 8H55V20"
+          stroke="#1D4ED8"
+          strokeWidth="5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
 
-      {/* Barras crecientes */}
-      <line x1="18" y1="30" x2="18" y2="28" stroke={fg} strokeWidth="1.8" strokeLinecap="round" />
-      <line x1="22" y1="30" x2="22" y2="26" stroke={fg} strokeWidth="1.8" strokeLinecap="round" />
-      <line x1="26" y1="30" x2="26" y2="24" stroke={fg} strokeWidth="1.8" strokeLinecap="round" />
-      <line x1="30" y1="30" x2="30" y2="22" stroke={fg} strokeWidth="1.8" strokeLinecap="round" />
-    </svg>
+      {showName && (
+        <span className="app-logo-name">
+          Ventas en Subida
+        </span>
+      )}
+    </div>
   )
 }

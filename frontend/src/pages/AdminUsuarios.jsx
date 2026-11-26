@@ -10,6 +10,33 @@ const ROLES = [
   { value: 'admin', label: 'Admin' },
 ]
 
+function IconKey() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+      aria-hidden="true">
+      <circle cx="8" cy="15" r="5" />
+      <path d="m21 2-9.6 9.6" />
+      <path d="m15.5 7.5 3 3" />
+      <path d="m18.5 4.5 3 3" />
+    </svg>
+  )
+}
+
+function IconTrash() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+      aria-hidden="true">
+      <path d="M3 6h18" />
+      <path d="M8 6V4h8v2" />
+      <path d="m19 6-1 14H6L5 6" />
+      <path d="M10 11v5" />
+      <path d="M14 11v5" />
+    </svg>
+  )
+}
+
 function Modal({ titulo, children, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -160,12 +187,11 @@ export default function AdminUsuarios() {
                       )}
                     </td>
                     <td>
-                      <span className={`badge ${
-                        u.rol === 'admin' ? 'badge-danger' :
+                      <span className={`badge ${u.rol === 'admin' ? 'badge-danger' :
                         u.rol === 'ventas' ? 'badge-info' :
-                        u.rol === 'finanzas' ? 'badge-warning' :
-                        'badge-success'
-                      }`}>
+                          u.rol === 'finanzas' ? 'badge-warning' :
+                            'badge-success'
+                        }`}>
                         {u.rol || 'Sin rol'}
                       </span>
                     </td>
@@ -188,24 +214,30 @@ export default function AdminUsuarios() {
                         ? new Date(u.last_sign_in_at).toLocaleString()
                         : 'Nunca'}
                     </td>
-                    <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
-                      <button
-                        className="btn btn-ghost btn-sm"
-                        onClick={() => setModalReset(u.id)}
-                        title="Resetear contraseña"
-                      >
-                        Resetear
-                      </button>
-                      {!esYoMismo && (
+                    <td className="user-actions-cell">
+                      <div className="user-actions">
                         <button
-                          className="btn btn-ghost btn-sm"
-                          onClick={() => eliminarUsuario(u)}
-                          title="Eliminar usuario"
-                          style={{ color: 'var(--danger)' }}
+                          type="button"
+                          className="user-action-btn user-action-reset"
+                          onClick={() => setModalReset(u.id)}
+                          title="Restablecer contraseña"
+                          aria-label={`Restablecer contraseña de ${u.email}`}
                         >
-                          Eliminar
+                          <IconKey />
                         </button>
-                      )}
+
+                        {!esYoMismo && (
+                          <button
+                            type="button"
+                            className="user-action-btn user-action-delete"
+                            onClick={() => eliminarUsuario(u)}
+                            title="Eliminar usuario"
+                            aria-label={`Eliminar usuario ${u.email}`}
+                          >
+                            <IconTrash />
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 )

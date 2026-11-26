@@ -7,6 +7,26 @@ import {
   claseEstado,
 } from '../utils/badges'
 
+function IconTrash() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M3 6h18" />
+      <path d="M8 6V4h8v2" />
+      <path d="m19 6-1 14H6L5 6" />
+      <path d="M10 11v5" />
+      <path d="M14 11v5" />
+    </svg>
+  )
+}
+
 export default function TodasBoletas() {
   const toast = useToast()
 
@@ -256,10 +276,18 @@ export default function TodasBoletas() {
                         {b.estado}
                       </span>
                     </td>
-                    <td style={{ textAlign: 'right' }}>
-                      <button className="btn btn-ghost btn-sm" onClick={() => eliminar(b.id)}>
-                        Eliminar
-                      </button>
+                    <td className="user-actions-cell">
+                      <div className="user-actions">
+                        <button
+                          type="button"
+                          className="user-action-btn user-action-delete"
+                          onClick={() => eliminar(b.id)}
+                          title="Eliminar boleta"
+                          aria-label={`Eliminar boleta ${b.numero_boleta}`}
+                        >
+                          <IconTrash />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
