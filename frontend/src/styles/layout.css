@@ -284,56 +284,88 @@
 .sidebar-theme-switch {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 10px;
   margin-bottom: 14px;
-  border-radius: 12px;
-  background: var(--theme-switch-bg, #f1f5f9);
-  border: 1px solid var(--theme-switch-border, #e2e8f0);
+  min-height: 36px;
 }
 
-.sidebar-theme-option {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  padding: 9px 12px;
-  border: 1px solid transparent;
-  border-radius: 9px;
-  background: transparent;
-  color: var(--theme-switch-text, #64748b);
-  font-size: 13px;
+.sidebar-theme-label {
+  color: #cbd5e1;
+  font-size: var(--fs-sm);
   font-weight: 500;
+}
+
+/* Interruptor con iconos */
+.theme-toggle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 58px;
+  height: 30px;
+  min-width: 58px;
+  padding: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: #334155;
   cursor: pointer;
-  transition:
-    background 0.2s ease,
-    color 0.2s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: background 0.2s ease;
 }
 
-.sidebar-theme-option svg {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
+.theme-toggle.active {
+  background: #1d4ed8;
 }
 
-.sidebar-theme-option:hover {
-  color: var(--theme-switch-hover, #0f172a);
+.theme-toggle-icon {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  color: #cbd5e1;
+  transition: color 0.2s ease;
 }
 
-.sidebar-theme-option.active {
-  background: var(--theme-switch-active-bg, #ffffff);
-  color: var(--theme-switch-active-text, #0f172a);
-  border-color: var(--theme-switch-active-border, #e2e8f0);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  font-weight: 600;
+.theme-toggle-icon svg {
+  width: 15px;
+  height: 15px;
 }
 
-.sidebar-theme-option:focus-visible {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
+.theme-toggle:not(.active) .sun,
+.theme-toggle.active .moon {
+  color: #1e293b;
+}
+
+.theme-toggle:not(.active) .moon,
+.theme-toggle.active .sun {
+  color: #cbd5e1;
+}
+
+/* Indicador que se desplaza */
+.theme-toggle-indicator {
+  position: absolute;
+  z-index: 1;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.theme-toggle.active .theme-toggle-indicator {
+  transform: translateX(28px);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid #60a5fa;
+  outline-offset: 3px;
 }
 
 /* Modo oscuro */

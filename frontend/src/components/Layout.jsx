@@ -1,4 +1,5 @@
-import { Link, Outlet, NavLink, useNavigate } from 'react-router-dom'
+
+import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { usePermiso } from '../hooks/usePermiso'
@@ -65,7 +66,7 @@ const IconUsers = () => (
 )
 
 const IconSun = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="5" />
     <line x1="12" y1="1" x2="12" y2="3" />
     <line x1="12" y1="21" x2="12" y2="23" />
@@ -79,7 +80,7 @@ const IconSun = () => (
 )
 
 const IconMoon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
   </svg>
 )
@@ -192,27 +193,32 @@ export default function Layout() {
         </nav>
 
         <div className="sidebar-user" ref={menuRef}>
-          <div className="sidebar-theme-switch" role="group" aria-label="Seleccionar apariencia">
-            <button
-              type="button"
-              className={`sidebar-theme-option ${tema === 'light' ? 'active' : ''}`}
-              onClick={() => setTema('light')}
-              aria-pressed={tema === 'light'}
-            >
-              <IconSun />
-              <span>Claro</span>
-            </button>
+          {/* Botón compacto de cambio de tema */}
+
+          <div className="sidebar-theme-switch">
+            <span className="sidebar-theme-label">Apariencia</span>
 
             <button
               type="button"
-              className={`sidebar-theme-option ${tema === 'dark' ? 'active' : ''}`}
-              onClick={() => setTema('dark')}
-              aria-pressed={tema === 'dark'}
+              className={`theme-toggle ${tema === 'dark' ? 'active' : ''}`}
+              onClick={() => setTema(tema === 'dark' ? 'light' : 'dark')}
+              role="switch"
+              aria-checked={tema === 'dark'}
+              aria-label="Cambiar entre modo claro y oscuro"
+              title={tema === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
             >
-              <IconMoon />
-              <span>Oscuro</span>
+              <span className="theme-toggle-indicator" />
+
+              <span className="theme-toggle-icon sun">
+                <IconSun />
+              </span>
+
+              <span className="theme-toggle-icon moon">
+                <IconMoon />
+              </span>
             </button>
           </div>
+
 
           <div className="sidebar-user-wrapper">
             <button
@@ -224,10 +230,12 @@ export default function Layout() {
               <div className="sidebar-user-avatar">
                 {usuario?.email?.[0]?.toUpperCase() || '?'}
               </div>
+
               <div className="sidebar-user-text">
                 <div className="sidebar-user-email">{usuario?.email}</div>
                 <div className="sidebar-user-rol">{rol}</div>
               </div>
+
               <svg
                 className={`sidebar-user-chevron ${menuAbierto ? 'open' : ''}`}
                 viewBox="0 0 24 24"
@@ -249,7 +257,9 @@ export default function Layout() {
                   <div className="sidebar-user-menu-email">{usuario?.email}</div>
                   <div className="sidebar-user-menu-rol">{rol}</div>
                 </div>
+
                 <div className="sidebar-user-menu-divider" />
+
                 <button
                   className="sidebar-user-menu-item danger"
                   onClick={handleLogout}
